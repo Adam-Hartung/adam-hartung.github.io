@@ -247,6 +247,8 @@
       
       .projects-container {
         grid-template-columns: 1fr;
+        /* Add extra bottom padding to ensure space above the home button */
+        padding-bottom: 80px;
       }
       
       /* Move the home button to the bottom center and hide it by default on mobile */
@@ -310,11 +312,11 @@
   </div>
   
   <script>
-    // Orb generation code (unchanged)
+    // Orb generation code remains unchanged
     const orbsContainer = document.getElementById('orbsContainer');
-    const desiredOrbCount = 50; // Target number of orbs on screen
-    const minDuration = 25; // Minimum animation duration in seconds
-    const maxDuration = 40; // Maximum animation duration in seconds
+    const desiredOrbCount = 50;
+    const minDuration = 25;
+    const maxDuration = 40;
     const averageDuration = (minDuration + maxDuration) / 2;
     const intervalMs = (averageDuration / desiredOrbCount) * 1000;
 
@@ -354,11 +356,9 @@
     setInterval(createOrb, intervalMs);
 
     // Mobile home button visibility toggle
-    // Only activate on mobile devices (max-width: 768px)
     function toggleHomeButton() {
       const homeButton = document.querySelector('.home-button');
       if (!homeButton) return;
-      // Check if the user has scrolled to (or near) the bottom of the page.
       if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 10) {
         homeButton.style.display = 'inline-flex';
       } else {
