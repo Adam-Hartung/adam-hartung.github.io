@@ -51,7 +51,7 @@
     .orb {
       position: absolute;
       border-radius: 50%;
-      animation: floatOrb linear; /* Runs once, controlled by JS duration */
+      animation: floatOrb linear;
       opacity: 0.6;
     }
     
@@ -247,6 +247,15 @@
       
       .projects-container {
         grid-template-columns: 1fr;
+      }
+      
+      /* Move the home button to the bottom center on mobile */
+      .home-button {
+        position: fixed;
+        bottom: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        top: auto;
       }
     }
   </style>
