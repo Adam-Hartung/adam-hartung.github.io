@@ -249,13 +249,14 @@
         grid-template-columns: 1fr;
       }
       
-      /* Move the home button to the bottom center on mobile */
+      /* Move the home button to the bottom center and hide it by default on mobile */
       .home-button {
         position: fixed;
         bottom: 1rem;
         left: 50%;
         transform: translateX(-50%);
         top: auto;
+        display: none;
       }
     }
   </style>
@@ -309,62 +310,66 @@
   </div>
   
   <script>
-    // Get the container where orbs will be added
+    // Orb generation code (unchanged)
     const orbsContainer = document.getElementById('orbsContainer');
-
-    // Configuration
     const desiredOrbCount = 50; // Target number of orbs on screen
     const minDuration = 25; // Minimum animation duration in seconds
     const maxDuration = 40; // Maximum animation duration in seconds
-    const averageDuration = (minDuration + maxDuration) / 2; // 32.5 seconds
-    const intervalMs = (averageDuration / desiredOrbCount) * 1000; // ~650ms
+    const averageDuration = (minDuration + maxDuration) / 2;
+    const intervalMs = (averageDuration / desiredOrbCount) * 1000;
 
-    // Function to create a single orb
     function createOrb() {
       const orb = document.createElement('div');
       orb.className = 'orb';
-
-      // Set random size between 50px and 150px
       const size = Math.random() * 100 + 50;
       orb.style.width = `${size}px`;
       orb.style.height = `${size}px`;
 
       if (Math.random() < 0.5) {
-        // Spawn from top, fully outside the screen
         const x = Math.random() * window.innerWidth;
-        const y = - (size + Math.random() * 50); // Ensure it's above the screen
+        const y = - (size + Math.random() * 50);
         orb.style.left = `${x}px`;
         orb.style.top = `${y}px`;
       } else {
-        // Spawn from right, fully outside the screen
-        const x = window.innerWidth + Math.random() * 100; // Start beyond the right edge
+        const x = window.innerWidth + Math.random() * 100;
         const y = Math.random() * window.innerHeight;
         orb.style.left = `${x}px`;
         orb.style.top = `${y}px`;
       }
 
-      // Randomly choose one of two gradient styles
       if (Math.random() < 0.5) {
         orb.style.background = 'radial-gradient(circle, rgba(150,80,255,0.4) 0%, rgba(100,60,255,0.1) 70%, transparent 100%)';
       } else {
         orb.style.background = 'radial-gradient(circle, rgba(80,150,255,0.4) 0%, rgba(60,100,255,0.1) 70%, transparent 100%)';
       }
 
-      // Set random animation duration between 25s and 40s
       const duration = Math.random() * (maxDuration - minDuration) + minDuration;
       orb.style.animationDuration = `${duration}s`;
-
-      // Add the orb to the container
       orbsContainer.appendChild(orb);
-
-      // Remove the orb when its animation ends
       orb.addEventListener('animationend', () => {
         orb.remove();
       });
     }
 
-    // Start spawning orbs at regular intervals
     setInterval(createOrb, intervalMs);
+
+    // Mobile home button visibility toggle
+    // Only activate on mobile devices (max-width: 768px)
+    function toggleHomeButton() {
+      const homeButton = document.querySelector('.home-button');
+      if (!homeButton) return;
+      // Check if the user has scrolled to (or near) the bottom of the page.
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 10) {
+        homeButton.style.display = 'inline-flex';
+      } else {
+        homeButton.style.display = 'none';
+      }
+    }
+    
+    if (window.innerWidth <= 768) {
+      window.addEventListener('scroll', toggleHomeButton);
+      toggleHomeButton();
+    }
   </script>
 </body>
 </html>
