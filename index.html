@@ -1,91 +1,179 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Welcome to My GitHub Page</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Using Montserrat font for a modern, clean look -->
-  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
-  <style>
-    /* Reset margins and set up base styles */
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: 'Montserrat', sans-serif;
-      color: #fff;
-    }
-    /* Animated gradient background */
-    body {
-      background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    /* Container for all content */
-    .container {
-      text-align: center;
-      max-width: 800px;
-      padding: 20px;
-    }
-    h1 {
-      font-size: 3rem;
-      margin-bottom: 30px;
-      letter-spacing: 1px;
-    }
-    /* Button container layout */
-    .buttons {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-    }
-    /* Style for the big buttons */
-    .button {
-      background: rgba(255, 255, 255, 0.1);
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      border-radius: 10px;
-      padding: 20px 40px;
-      font-size: 1.5rem;
-      color: #fff;
-      text-decoration: none;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
-    .button:hover {
-      background: rgba(255, 255, 255, 0.2);
-      border-color: rgba(255, 255, 255, 0.4);
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    }
-    /* Responsive adjustments */
-    @media (max-width: 600px) {
-      h1 {
-        font-size: 2.5rem;
-      }
-      .button {
-        font-size: 1.2rem;
-        padding: 15px 30px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #000000, #32174d, #191970);
+            color: #fff;
+            min-height: 100vh;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        header {
+            padding: 2rem 0;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, #a466ff, #5c69ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        p.tagline {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 1rem;
+        }
+        
+        .button-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+            text-decoration: none;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .button-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(164, 102, 255, 0.2), rgba(92, 105, 255, 0.2));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        
+        .button-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .button-card:hover::before {
+            opacity: 1;
+        }
+        
+        .button-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .button-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .button-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        footer {
+            margin-top: 4rem;
+            padding: 2rem 0;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            p.tagline {
+                font-size: 1.2rem;
+            }
+            
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Welcome to My GitHub Page</h1>
-    <div class="buttons">
-      <a href="page1.html" class="button">Button 1</a>
-      <a href="page2.html" class="button">Button 2</a>
-      <a href="page3.html" class="button">Button 3</a>
-      <a href="page4.html" class="button">Button 4</a>
+    <header>
+        <h1>Portfolio</h1>
+        <p class="tagline">Discover my projects and experiences</p>
+    </header>
+    
+    <div class="container">
+        <a href="projects.html" class="button-card">
+            <div class="button-icon">🚀</div>
+            <div class="button-title">Projects</div>
+            <div class="button-desc">Explore my latest work and creations</div>
+        </a>
+        
+        <a href="about.html" class="button-card">
+            <div class="button-icon">👋</div>
+            <div class="button-title">About Me</div>
+            <div class="button-desc">Learn more about who I am and what I do</div>
+        </a>
+        
+        <a href="skills.html" class="button-card">
+            <div class="button-icon">💻</div>
+            <div class="button-title">Skills</div>
+            <div class="button-desc">Technologies and tools I work with</div>
+        </a>
+        
+        <a href="resume.html" class="button-card">
+            <div class="button-icon">📄</div>
+            <div class="button-title">Resume</div>
+            <div class="button-desc">My professional background and experience</div>
+        </a>
+        
+        <a href="blog.html" class="button-card">
+            <div class="button-icon">✍️</div>
+            <div class="button-title">Blog</div>
+            <div class="button-desc">Thoughts, tutorials, and insights</div>
+        </a>
+        
+        <a href="contact.html" class="button-card">
+            <div class="button-icon">📱</div>
+            <div class="button-title">Contact</div>
+            <div class="button-desc">Get in touch with me</div>
+        </a>
     </div>
-  </div>
+    
+    <footer>
+        &copy; 2025 My Portfolio. All rights reserved.
+    </footer>
 </body>
 </html>
