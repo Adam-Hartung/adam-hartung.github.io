@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adam's Simulations</title>
+    <title>My Portfolio</title>
     <style>
         * {
             margin: 0;
@@ -18,10 +18,73 @@
             min-height: 100vh;
             padding: 2rem;
             text-align: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Star background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.7;
+            animation: twinkle ease-in-out infinite alternate;
+        }
+        
+        @keyframes twinkle {
+            0% {
+                opacity: 0.3;
+                transform: scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .moving-star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0.7;
+            animation: drift linear infinite;
+        }
+        
+        @keyframes drift {
+            0% {
+                transform: translateX(-10px) translateY(0);
+            }
+            100% {
+                transform: translateX(110vw) translateY(20vh);
+            }
+        }
+        
+        /* Nebula effect */
+        .nebula {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at bottom left, rgba(164, 80, 255, 0.15) 0%, rgba(0, 0, 0, 0) 70%),
+                        radial-gradient(ellipse at top right, rgba(92, 105, 255, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+            pointer-events: none;
+            z-index: -2;
         }
         
         header {
             padding: 2rem 0;
+            position: relative;
+            z-index: 1;
         }
         
         h1 {
@@ -32,6 +95,7 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
+            text-shadow: 0 0 20px rgba(164, 102, 255, 0.3);
         }
         
         p.tagline {
@@ -48,6 +112,8 @@
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
             padding: 1rem;
+            position: relative;
+            z-index: 1;
         }
         
         .button-card {
@@ -55,7 +121,7 @@
             backdrop-filter: blur(10px);
             border-radius: 15px;
             padding: 2rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -66,6 +132,7 @@
             position: relative;
             overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
         
         .button-card::before {
@@ -81,18 +148,41 @@
             z-index: -1;
         }
         
+        .button-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            right: -50%;
+            bottom: -50%;
+            background: linear-gradient(to right, rgba(255, 255, 255, 0) 20%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0) 80%);
+            opacity: 0;
+            transform: rotate(45deg) translateX(-100%);
+            transition: transform 0.7s ease;
+        }
+        
         .button-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3), 0 0 15px rgba(164, 102, 255, 0.5);
         }
         
         .button-card:hover::before {
             opacity: 1;
         }
         
+        .button-card:hover::after {
+            transform: rotate(45deg) translateX(100%);
+            opacity: 0.3;
+        }
+        
         .button-icon {
             font-size: 3rem;
             margin-bottom: 1rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .button-card:hover .button-icon {
+            transform: scale(1.2);
         }
         
         .button-title {
@@ -111,6 +201,8 @@
             padding: 2rem 0;
             font-size: 0.9rem;
             opacity: 0.7;
+            position: relative;
+            z-index: 1;
         }
         
         @media (max-width: 768px) {
@@ -129,13 +221,16 @@
     </style>
 </head>
 <body>
+    <div class="nebula"></div>
+    <div class="stars" id="starsContainer"></div>
+    
     <header>
-        <h1>Home</h1>
-        <p class="tagline">Discover many cool Simulations</p>
+        <h1>Portfolio</h1>
+        <p class="tagline">Discover my projects and experiences</p>
     </header>
     
     <div class="container">
-        <a href="/projects/bigBang.html" class="button-card">
+        <a href="projects.html" class="button-card">
             <div class="button-icon">🚀</div>
             <div class="button-title">Projects</div>
             <div class="button-desc">Explore my latest work and creations</div>
@@ -171,6 +266,121 @@
             <div class="button-desc">Get in touch with me</div>
         </a>
     </div>
-  
+    
+    <footer>
+        &copy; 2025 My Portfolio. All rights reserved.
+    </footer>
+
+    <script>
+        // Create star background
+        const starsContainer = document.getElementById('starsContainer');
+        const staticStarCount = 150;
+        const movingStarCount = 100;
+        
+        // Create static twinkling stars
+        function createStaticStars() {
+            for (let i = 0; i < staticStarCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                // Random size with more variation
+                const size = Math.random() * 3 + 0.5;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                // Colors - vary between white, light blue, and light purple
+                const colors = ['#ffffff', '#e0e8ff', '#e5d0ff', '#d2d2ff'];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                star.style.backgroundColor = randomColor;
+                
+                // Random position - ensure better coverage of the left side
+                let x;
+                // Give more weight to left side positioning for the first half of stars
+                if (i < staticStarCount / 2) {
+                    x = Math.random() * (window.innerWidth * 0.6); // First 60% of screen width
+                } else {
+                    x = Math.random() * window.innerWidth;
+                }
+                const y = Math.random() * window.innerHeight;
+                
+                star.style.left = `${x}px`;
+                star.style.top = `${y}px`;
+                
+                // Random opacity and twinkle animation
+                star.style.opacity = (Math.random() * 0.6) + 0.4;
+                
+                // Different twinkle speeds
+                const duration = (Math.random() * 3) + 1;
+                star.style.animationDuration = `${duration}s`;
+                
+                // Random delay to make twinkling asynchronous
+                star.style.animationDelay = `${Math.random() * 4}s`;
+                
+                // Add the star to the container
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        // Create moving stars
+        function createMovingStars() {
+            for (let i = 0; i < movingStarCount; i++) {
+                createMovingStar();
+            }
+        }
+        
+        function createMovingStar() {
+            const star = document.createElement('div');
+            star.className = 'moving-star';
+            
+            // Random size
+            const size = Math.random() * 2.5 + 0.5;
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            
+            // Colors - vary between white, light blue, and light purple
+            const colors = ['#ffffff', '#e0e8ff', '#e5d0ff', '#d2d2ff'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            star.style.backgroundColor = randomColor;
+            
+            // Start position - just outside the left edge
+            const startX = -10;
+            const y = Math.random() * window.innerHeight;
+            star.style.left = `${startX}px`;
+            star.style.top = `${y}px`;
+            
+            // Random opacity
+            star.style.opacity = (Math.random() * 0.6) + 0.4;
+            
+            // Random animation duration - larger variation
+            const duration = (Math.random() * 150) + 50;
+            star.style.animationDuration = `${duration}s`;
+            
+            // Random delay so they don't all start at the same time
+            star.style.animationDelay = `${Math.random() * -40}s`;
+            
+            // Add the star to the container
+            starsContainer.appendChild(star);
+            
+            // Remove and recreate stars when they complete their animation
+            star.addEventListener('animationend', () => {
+                star.remove();
+                createMovingStar();
+            });
+        }
+        
+        // Initialize the star backgrounds
+        createStaticStars();
+        createMovingStars();
+        
+        // Handle window resize by recreating all stars
+        window.addEventListener('resize', () => {
+            // Clear existing stars
+            starsContainer.innerHTML = '';
+            
+            // Recreate stars
+            createStaticStars();
+            createMovingStars();
+        });
+    </script>
 </body>
 </html>
