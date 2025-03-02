@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Simulations</title>
+  <style>
+    /* Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #000000, #32174d, #191970);
+      color: #fff;
+      min-height: 100vh;
+      padding: 2rem;
+      text-align: center;
+      overflow-x: hidden;
+      position: relative;
+    }
+    
+    /* Nebula effect */
+    .nebula {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at bottom left, rgba(164, 80, 255, 0.15) 0%, rgba(0, 0, 0, 0) 70%),
+                  radial-gradient(ellipse at top right, rgba(92, 105, 255, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+      pointer-events: none;
+      z-index: -2;
+    }
+    
+    /* Decorative Orbs Background */
+    .orbs {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      animation: floatOrb linear; /* Runs once, controlled by JS duration */
+      opacity: 0.6;
+    }
+    
+    @keyframes floatOrb {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(-100vw, 150vh) scale(1.5); }
+    }
+    
+    header {
+      padding: 2rem 0;
+      position: relative;
+      z-index: 1;
+    }
+    
+    h1 {
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      background: linear-gradient(90deg, #a466ff, #5c69ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 20px rgba(164,102,255,0.3);
+    }
+    
+    p.tagline {
+      font-size: 1.5rem;
+      font-weight: 300;
+      margin-bottom: 3rem;
+      opacity: 0.9;
+    }
+    
+    .projects-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      padding: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .project-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      overflow: hidden;
+      text-decoration: none;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    
+    .project-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.3), 0 0 20px rgba(164,102,255,0.5);
+    }
+    
+    .project-image {
+      width: 100%;
+      height: 200px;
+      background: #32174d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: bold;
+      color: #fff;
+    }
+    
+    .project-content {
+      padding: 1.5rem;
+      text-align: left;
+    }
+    
+    .project-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .project-desc {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      opacity: 0.8;
+    }
+    
+    .project-btn {
+      background: linear-gradient(90deg, #a466ff, #5c69ff);
+      border: none;
+      border-radius: 8px;
+      padding: 0.8rem 1.5rem;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.3s ease;
+      display: inline-block;
+    }
+    
+    .project-btn:hover {
+      background: linear-gradient(90deg, #5c69ff, #a466ff);
+    }
+    
+    footer {
+      margin-top: 4rem;
+      padding: 2rem 0;
+      font-size: 0.9rem;
+      opacity: 0.7;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .home-button {
+      position: absolute;
+      top: 2rem;
+      left: 2rem;
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .home-text {
+      background: linear-gradient(90deg, #a466ff, #5c69ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-size: 1rem;
+      font-weight: 600;
+      text-shadow: 0 0 10px rgba(164, 102, 255, 0.3);
+    }
+    
+    .home-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(164, 102, 255, 0.5);
+    }
+    
+    .home-button::before,
+    .home-button::after {
+      content: '';
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: radial-gradient(circle, rgba(164, 80, 255, 0.8) 0%, rgba(92, 105, 255, 0.5) 70%, transparent 100%);
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    
+    .home-button::before {
+      left: -15px;
+      top: 50%;
+      transform: translateY(-50%) scale(0.5);
+    }
+    
+    .home-button::after {
+      right: -15px;
+      top: 50%;
+      transform: translateY(-50%) scale(0.5);
+    }
+    
+    .home-button:hover::before,
+    .home-button:hover::after {
+      opacity: 1;
+      transform: translateY(-50%) scale(1);
+    }
+    
+    .home-button:focus {
+      outline: 2px solid #a466ff;
+      outline-offset: 2px;
+    }
+    
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2.5rem;
+      }
+      
+      p.tagline {
+        font-size: 1.2rem;
+      }
+      
+      .projects-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="nebula"></div>
+  <div class="orbs" id="orbsContainer"></div>
+  
+  <header>
+    <a href="index.html" class="home-button"><span class="home-text">Home</span></a>
+    <h1>My Simulations</h1>
+    <p class="tagline">Browse through my visually appealing science and space simulations</p>
+  </header>
+  
+  <div class="projects-container">
+    <div class="project-card">
+      <div class="project-image">Image 1</div>
+      <div class="project-content">
+        <div class="project-title">Simulation 1</div>
+        <div class="project-desc">A brief description of Simulation 1.</div>
+        <a href="simulation1.html" class="project-btn">View Simulation</a>
+      </div>
+    </div>
+    
+    <div class="project-card">
+      <div class="project-image">Image 2</div>
+      <div class="project-content">
+        <div class="project-title">Simulation 2</div>
+        <div class="project-desc">A brief description of Simulation 2.</div>
+        <a href="simulation2.html" class="project-btn">View Simulation</a>
+      </div>
+    </div>
+    
+    <div class="project-card">
+      <div class="project-image">Image 3</div>
+      <div class="project-content">
+        <div class="project-title">Simulation 3</div>
+        <div class="project-desc">A brief description of Simulation 3.</div>
+        <a href="simulation3.html" class="project-btn">View Simulation</a>
+      </div>
+    </div>
+    
+    <div class="project-card">
+      <div class="project-image">Image 4</div>
+      <div class="project-content">
+        <div class="project-title">Simulation 4</div>
+        <div class="project-desc">A brief description of Simulation 4.</div>
+        <a href="simulation4.html" class="project-btn">View Simulation</a>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Get the container where orbs will be added
+    const orbsContainer = document.getElementById('orbsContainer');
+
+    // Configuration
+    const desiredOrbCount = 50; // Target number of orbs on screen
+    const minDuration = 25; // Minimum animation duration in seconds
+    const maxDuration = 40; // Maximum animation duration in seconds
+    const averageDuration = (minDuration + maxDuration) / 2; // 32.5 seconds
+    const intervalMs = (averageDuration / desiredOrbCount) * 1000; // ~650ms
+
+    // Function to create a single orb
+    function createOrb() {
+      const orb = document.createElement('div');
+      orb.className = 'orb';
+
+      // Set random size between 50px and 150px
+      const size = Math.random() * 100 + 50;
+      orb.style.width = `${size}px`;
+      orb.style.height = `${size}px`;
+
+      if (Math.random() < 0.5) {
+        // Spawn from top, fully outside the screen
+        const x = Math.random() * window.innerWidth;
+        const y = - (size + Math.random() * 50); // Ensure it's above the screen
+        orb.style.left = `${x}px`;
+        orb.style.top = `${y}px`;
+      } else {
+        // Spawn from right, fully outside the screen
+        const x = window.innerWidth + Math.random() * 100; // Start beyond the right edge
+        const y = Math.random() * window.innerHeight;
+        orb.style.left = `${x}px`;
+        orb.style.top = `${y}px`;
+      }
+
+      // Randomly choose one of two gradient styles
+      if (Math.random() < 0.5) {
+        orb.style.background = 'radial-gradient(circle, rgba(150,80,255,0.4) 0%, rgba(100,60,255,0.1) 70%, transparent 100%)';
+      } else {
+        orb.style.background = 'radial-gradient(circle, rgba(80,150,255,0.4) 0%, rgba(60,100,255,0.1) 70%, transparent 100%)';
+      }
+
+      // Set random animation duration between 25s and 40s
+      const duration = Math.random() * (maxDuration - minDuration) + minDuration;
+      orb.style.animationDuration = `${duration}s`;
+
+      // Add the orb to the container
+      orbsContainer.appendChild(orb);
+
+      // Remove the orb when its animation ends
+      orb.addEventListener('animationend', () => {
+        orb.remove();
+      });
+    }
+
+    // Start spawning orbs at regular intervals
+    setInterval(createOrb, intervalMs);
+  </script>
+</body>
+</html>
