@@ -1,1 +1,1 @@
-# SImulations
+# Simulations
