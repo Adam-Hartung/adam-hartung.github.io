@@ -1,1236 +1,1021 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stellar Life Cycle Simulation</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-            color: white;
-        }
-        #container {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-        }
-        #info {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 5px;
-            max-width: 300px;
-        }
-        #controls {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 5px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        #controls div {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        #controls label {
-            margin-right: 10px;
-            width: 150px;
-        }
-        #buttonControls {
-            display: flex;
-            gap: 10px;
-            justify-content: space-between;
-        }
-        button {
-            padding: 8px 15px;
-            background: #4a4a9c;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background: #5a5aac;
-        }
-        #home {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
-        }
-        #home h1 {
-            font-size: 2.5em;
-            margin-bottom: 20px;
-            color: #ffd700;
-        }
-        #home p {
-            max-width: 600px;
-            text-align: center;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-        #startButton {
-            padding: 15px 30px;
-            font-size: 1.2em;
-            background: #4a4a9c;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        #startButton:hover {
-            background: #5a5aac;
-        }
-        #phaseLabel {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 1.2em;
-        }
-        #timeline {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 5px;
-            width: 300px;
-        }
-        #timelineBar {
-            width: 100%;
-            height: 10px;
-            background: #333;
-            border-radius: 5px;
-            margin-top: 5px;
-            position: relative;
-        }
-        #timelineProgress {
-            height: 100%;
-            background: #ffd700;
-            border-radius: 5px;
-            width: 0%;
-        }
-        #timelineMarkers {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 5px;
-            font-size: 0.8em;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stellar Life Cycle Simulation</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+    #container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+    }
+    #info {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.7);
+      padding: 10px;
+      border-radius: 5px;
+      max-width: 300px;
+    }
+    #controls {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.7);
+      padding: 10px;
+      border-radius: 5px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #controls div {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #controls label {
+      margin-right: 10px;
+      width: 150px;
+    }
+    #buttonControls {
+      display: flex;
+      gap: 10px;
+      justify-content: space-between;
+    }
+    button {
+      padding: 8px 15px;
+      background: #4a4a9c;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #5a5aac;
+    }
+    #home {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+    #home h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      color: #ffd700;
+    }
+    #home p {
+      max-width: 600px;
+      text-align: center;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+    #startButton {
+      padding: 15px 30px;
+      font-size: 1.2em;
+      background: #4a4a9c;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #startButton:hover {
+      background: #5a5aac;
+    }
+    #phaseLabel {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.7);
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 1.2em;
+    }
+    #timeline {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.7);
+      padding: 10px;
+      border-radius: 5px;
+      width: 300px;
+    }
+    #timelineBar {
+      width: 100%;
+      height: 10px;
+      background: #333;
+      border-radius: 5px;
+      margin-top: 5px;
+      position: relative;
+    }
+    #timelineProgress {
+      height: 100%;
+      background: #ffd700;
+      border-radius: 5px;
+      width: 0%;
+    }
+    #timelineMarkers {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 5px;
+      font-size: 0.8em;
+    }
+  </style>
 </head>
 <body>
-    <div id="container">
-        <div id="info">
-            <h2>Star Information</h2>
-            <div id="starInfo">
-                <p>Phase: <span id="phase">Nebula</span></p>
-                <p>Mass: <span id="mass">1.0 Solar Masses</span></p>
-                <p>Age: <span id="age">0 Million Years</span></p>
-                <p>Temperature: <span id="temperature">--</span></p>
-                <p>Size: <span id="size">--</span></p>
-            </div>
-        </div>
-        
-        <div id="phaseLabel"></div>
-        
-        <div id="controls">
-            <div>
-                <label for="massRange">Initial Star Mass:</label>
-                <input type="range" id="massRange" min="0.1" max="25" step="0.1" value="1.0">
-                <span id="massValue">1.0 M☉</span>
-            </div>
-            <div>
-                <label for="speedRange">Simulation Speed:</label>
-                <input type="range" id="speedRange" min="0.5" max="50" step="0.5" value="1">
-                <span id="speedValue">1x</span>
-            </div>\
-            <div>
-                <label for="turbulenceRange">Gas Turbulence:</label>
-                <input type="range" id="turbulenceRange" min="0" max="5" step="0.1" value="1">
-                <span id="turbulenceValue">1</span>
-            </div>
-            <div>
-                <label for="autoRotate">Auto Rotation:</label>
-                <input type="checkbox" id="autoRotate">
-            </div>
-            <div id="buttonControls">
-                <button id="startSimulation">Start</button>
-                <button id="pauseSimulation">Pause</button>
-                <button id="resetSimulation">Reset</button>
-                <button id="stopSimulation">Stop</button>
-            </div>
-        </div>
-        
-        <div id="timeline">
-            <div>Star Life Cycle Progress</div>
-            <div id="timelineBar">
-                <div id="timelineProgress"></div>
-            </div>
-            <div id="timelineMarkers">
-                <span>Nebula</span>
-                <span>Main Sequence</span>
-                <span>End</span>
-            </div>
-        </div>
-        
-        <div id="home">
-            <h1>Stellar Life Cycle Simulation</h1>
-            <p>
-                Witness the extraordinary journey of a star from its humble beginnings as a nebula to its dramatic finale. 
-                Adjust the star's mass to see how it affects its evolution and ultimate fate. 
-                Will it become a white dwarf, a neutron star, or explode in a spectacular supernova?
-            </p>
-            <button id="startButton">Begin Simulation</button>
-        </div>
+  <div id="container">
+    <div id="info">
+      <h2>Star Information</h2>
+      <div id="starInfo">
+        <p>Phase: <span id="phase">Nebula</span></p>
+        <p>Mass: <span id="mass">1.0 Solar Masses</span></p>
+        <p>Age: <span id="age">0 Million Years</span></p>
+        <p>Temperature: <span id="temperature">--</span></p>
+        <p>Size: <span id="size">--</span></p>
+      </div>
     </div>
+    <div id="phaseLabel"></div>
+    <div id="controls">
+      <div>
+        <label for="massRange">Initial Star Mass:</label>
+        <input type="range" id="massRange" min="0.1" max="25" step="0.1" value="1.0" />
+        <span id="massValue">1.0 M☉</span>
+      </div>
+      <div>
+        <label for="speedRange">Simulation Speed:</label>
+        <!-- Maximum set to 10x -->
+        <input type="range" id="speedRange" min="0.5" max="10" step="0.5" value="1" />
+        <span id="speedValue">1x</span>
+      </div>
+      <div>
+        <label for="turbulenceRange">Gas Turbulence:</label>
+        <input type="range" id="turbulenceRange" min="0" max="5" step="0.1" value="1" />
+        <span id="turbulenceValue">1</span>
+      </div>
+      <div>
+        <label for="autoRotate">Auto Rotation:</label>
+        <input type="checkbox" id="autoRotate" />
+      </div>
+      <div id="buttonControls">
+        <button id="startSimulation">Start</button>
+        <button id="pauseSimulation">Pause</button>
+        <button id="resetSimulation">Reset</button>
+        <button id="stopSimulation">Stop</button>
+      </div>
+    </div>
+    <div id="timeline">
+      <div>Star Life Cycle Progress</div>
+      <div id="timelineBar">
+        <div id="timelineProgress"></div>
+      </div>
+      <div id="timelineMarkers">
+        <span>Nebula</span>
+        <span>Main Sequence</span>
+        <span>End</span>
+      </div>
+    </div>
+    <div id="home">
+      <h1>Stellar Life Cycle Simulation</h1>
+      <p>
+        Witness the extraordinary journey of a star from its humble beginnings as a nebula to its dramatic finale.
+        Adjust the star's mass to see how it affects its evolution and ultimate fate.
+        Will it become a white dwarf, a neutron star, or explode in a spectacular supernova?
+      </p>
+      <button id="startButton">Begin Simulation</button>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+  <script>
+    class StellarLifecycleSimulation {
+      constructor() {
+        this.state = {
+          running: false,
+          paused: false,
+          currentPhase: 0,
+          age: 0,
+          timeScale: 1,
+          starMass: 1.0,
+          turbulence: 1.0,
+          autoRotate: false
+        };
+        this.lastFlareTime = 0;
+        // Dramatically faster phases
+        this.phases = [
+          { name: "Nebula", duration: 2, color: 0x7070ff, description: "A cloud of gas and dust begins to collapse under gravity." },
+          { name: "Protostar", duration: 2, color: 0xdd5e5e, description: "The collapsing nebula forms a hot, dense core." },
+          { name: "Main Sequence", duration: 8, color: 0xffff00, description: "Hydrogen fusion begins, stabilizing the star for most of its life." }
+        ];
+        this.lowMassEndPhases = [
+          { name: "Red Giant", duration: 1.5, color: 0xff5500, description: "The star expands as hydrogen in the core is depleted." },
+          { name: "Planetary Nebula", duration: 1, color: 0x50ff50, description: "Outer layers are expelled, forming a nebula." },
+          { name: "White Dwarf", duration: 1.5, color: 0xffffff, description: "The exposed hot core slowly cools over billions of years." }
+        ];
+        this.highMassEndPhases = [
+          { name: "Red Supergiant", duration: 1.5, color: 0xff0000, description: "Massive expansion as the star fuses heavier elements." },
+          { name: "Supernova", duration: 1, color: 0xffaa00, description: "Catastrophic explosion releasing enormous energy." },
+          { name: "Neutron Star", duration: 1.5, color: 0xaaeeff, description: "Super-dense remnant of the collapsed core." }
+        ];
+        this.veryHighMassEndPhases = [
+          { name: "Blue Supergiant", duration: 1.5, color: 0x0088ff, description: "Extremely hot, massive and luminous star." },
+          { name: "Hypernova", duration: 1, color: 0xff8800, description: "Extraordinarily energetic supernova explosion." },
+          { name: "Black Hole", duration: 1.5, color: 0x000000, description: "A region of spacetime where gravity is so strong nothing can escape." }
+        ];
+        this.setupScene();
+        this.setupLighting();
+        this.createStarfield();
+        this.createNebula();
+        this.createStar();
+        this.setupEventListeners();
+        this.animate();
+      }
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
-    <script>
-        // Main simulation class
-        class StellarLifecycleSimulation {
-            constructor() {
-                // Simulation state
-                this.state = {
-                    running: false,
-                    paused: false,
-                    currentPhase: 0,
-                    age: 0,
-                    timeScale: 1,
-                    starMass: 1.0,
-                    turbulence: 1.0,
-                    autoRotate: false
-                };
-                
-                // Define star lifecycle phases
-                this.phases = [
-                    { name: "Nebula", duration: 10, color: 0x7070ff, description: "A cloud of gas and dust begins to collapse under gravity." },
-                    { name: "Protostar", duration: 10, color: 0xdd5e5e, description: "The collapsing nebula forms a hot, dense core." },
-                    { name: "Main Sequence", duration: 40, color: 0xffff00, description: "Hydrogen fusion begins, stabilizing the star for most of its life." }
-                ];
-                
-                // Add different end states based on star mass
-                this.lowMassEndPhases = [
-                    { name: "Red Giant", duration: 15, color: 0xff5500, description: "The star expands as hydrogen in the core is depleted." },
-                    { name: "Planetary Nebula", duration: 10, color: 0x50ff50, description: "Outer layers are expelled, forming a nebula." },
-                    { name: "White Dwarf", duration: 15, color: 0xffffff, description: "The exposed hot core slowly cools over billions of years." }
-                ];
-                
-                this.highMassEndPhases = [
-                    { name: "Red Supergiant", duration: 15, color: 0xff0000, description: "Massive expansion as the star fuses heavier elements." },
-                    { name: "Supernova", duration: 10, color: 0xffaa00, description: "Catastrophic explosion releasing enormous energy." },
-                    { name: "Neutron Star", duration: 15, color: 0xaaeeff, description: "Super-dense remnant of the collapsed core." }
-                ];
-                
-                this.veryHighMassEndPhases = [
-                    { name: "Blue Supergiant", duration: 15, color: 0x0088ff, description: "Extremely hot, massive and luminous star." },
-                    { name: "Hypernova", duration: 10, color: 0xff8800, description: "Extraordinarily energetic supernova explosion." },
-                    { name: "Black Hole", duration: 15, color: 0x000000, description: "A region of spacetime where gravity is so strong nothing can escape." }
-                ];
-                
-                // Setup the scene
-                this.setupScene();
-                this.setupLighting();
-                this.createStarfield();
-                this.createNebula();
-                this.createStar();
-                this.setupEventListeners();
-                
-                // Start animation loop
-                this.animate();
-            }
-            
-            setupScene() {
-                // Create scene
-                this.scene = new THREE.Scene();
-                
-                // Create camera
-                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-                this.camera.position.z = 15;
-                
-                // Create renderer
-                this.renderer = new THREE.WebGLRenderer({ antialias: true });
-                this.renderer.setSize(window.innerWidth, window.innerHeight);
-                this.renderer.setClearColor(0x000000);
-                document.getElementById('container').appendChild(this.renderer.domElement);
-                
-                // Create orbit controls for camera
-                this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-                this.controls.enableDamping = true;
-                this.controls.dampingFactor = 0.05;
-                
-                // Handle window resize
-                window.addEventListener('resize', () => {
-                    this.camera.aspect = window.innerWidth / window.innerHeight;
-                    this.camera.updateProjectionMatrix();
-                    this.renderer.setSize(window.innerWidth, window.innerHeight);
-                });
-            }
-            
-            setupLighting() {
-                // Ambient light
-                this.ambientLight = new THREE.AmbientLight(0x333333);
-                this.scene.add(this.ambientLight);
-                
-                // Point light at center (star light)
-                this.starLight = new THREE.PointLight(0xffffff, 1.5, 100);
-                this.starLight.position.set(0, 0, 0);
-                this.scene.add(this.starLight);
-            }
-            
-            createStarfield() {
-                const starsGeometry = new THREE.BufferGeometry();
-                const starsMaterial = new THREE.PointsMaterial({
-                    color: 0xffffff,
-                    size: 0.1,
-                    transparent: true
-                });
-                
-                // Create 1000 random stars
-                const positions = new Float32Array(3000);
-                for (let i = 0; i < 3000; i += 3) {
-                    positions[i] = (Math.random() - 0.5) * 200;
-                    positions[i + 1] = (Math.random() - 0.5) * 200;
-                    positions[i + 2] = (Math.random() - 0.5) * 200;
-                }
-                
-                starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-                
-                this.starfield = new THREE.Points(starsGeometry, starsMaterial);
-                this.scene.add(this.starfield);
-            }
-            
-            createNebula() {
-                // Nebula cloud
-                this.nebulaParticles = new THREE.Group();
-                
-                // Create multiple particle systems for nebula effect
-                const particleCount = 1000;
-                const nebulaGeometry = new THREE.BufferGeometry();
-                const nebulaMaterial = new THREE.PointsMaterial({
-                    color: 0x7070ff,
-                    size: 0.1,
-                    transparent: true,
-                    opacity: 0.7
-                });
-                
-                const positions = new Float32Array(particleCount * 3);
-                
-                for (let i = 0; i < particleCount; i++) {
-                    const radius = 5 + Math.random() * 5;
-                    const theta = Math.random() * Math.PI * 2;
-                    const phi = Math.random() * Math.PI;
-                    
-                    const x = radius * Math.sin(phi) * Math.cos(theta);
-                    const y = radius * Math.sin(phi) * Math.sin(theta);
-                    const z = radius * Math.cos(phi);
-                    
-                    positions[i * 3] = x;
-                    positions[i * 3 + 1] = y;
-                    positions[i * 3 + 2] = z;
-                }
-                
-                nebulaGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-                
-                this.nebulaCloud = new THREE.Points(nebulaGeometry, nebulaMaterial);
-                this.nebulaParticles.add(this.nebulaCloud);
-                
-                // Add some larger gas clouds
-                for (let i = 0; i < 5; i++) {
-                    const cloudGeometry = new THREE.SphereGeometry(Math.random() * 2 + 1, 32, 32);
-                    const cloudMaterial = new THREE.MeshStandardMaterial({
-                        color: 0x6060ff,
-                        transparent: true,
-                        opacity: 0.2,
-                        emissive: 0x3030aa,
-                        emissiveIntensity: 0.2
-                    });
-                    
-                    const cloud = new THREE.Mesh(cloudGeometry, cloudMaterial);
-                    cloud.position.set(
-                        (Math.random() - 0.5) * 8,
-                        (Math.random() - 0.5) * 8,
-                        (Math.random() - 0.5) * 8
-                    );
-                    
-                    this.nebulaParticles.add(cloud);
-                }
-                
-                this.scene.add(this.nebulaParticles);
-            }
-            
-            createStar() {
-                // Star object
-                const starGeometry = new THREE.SphereGeometry(1, 64, 64);
-                
-                // Create material with custom shader for star surface
-                const starMaterial = new THREE.MeshStandardMaterial({
-                    color: 0xffff00,
-                    emissive: 0xffff00,
-                    emissiveIntensity: 1
-                });
-                
-                this.star = new THREE.Mesh(starGeometry, starMaterial);
-                this.star.scale.set(0.1, 0.1, 0.1); // Start small
-                this.scene.add(this.star);
-                
-                // Add glow effect
-                const glowGeometry = new THREE.SphereGeometry(1.2, 32, 32);
-                const glowMaterial = new THREE.MeshBasicMaterial({
-                    color: 0xffff00,
-                    transparent: true,
-                    opacity: 0.3
-                });
-                
-                this.starGlow = new THREE.Mesh(glowGeometry, glowMaterial);
-                this.starGlow.scale.set(0.1, 0.1, 0.1);
-                this.scene.add(this.starGlow);
-                
-                // Initial visibility
-                this.star.visible = false;
-                this.starGlow.visible = false;
-            }
-            
-            updatePhase() {
-                // Determine current phase
-                let elapsedTime = 0;
-                let totalTime = 0;
-                
-                // Calculate total duration and combine phases based on star mass
-                this.allPhases = [...this.phases];
-                
-                if (this.state.starMass < 4) {
-                    this.allPhases = this.allPhases.concat(this.lowMassEndPhases);
-                } else if (this.state.starMass < 15) {
-                    this.allPhases = this.allPhases.concat(this.highMassEndPhases);
-                } else {
-                    this.allPhases = this.allPhases.concat(this.veryHighMassEndPhases);
-                }
-                
-                totalTime = this.allPhases.reduce((sum, phase) => sum + phase.duration, 0);
-                
-                // Calculate progress and identify current phase
-                const progress = this.state.age / totalTime;
-                document.getElementById('timelineProgress').style.width = `${progress * 100}%`;
-                
-                for (let i = 0; i < this.allPhases.length; i++) {
-                    elapsedTime += this.allPhases[i].duration;
-                    
-                    if (this.state.age <= elapsedTime || i === this.allPhases.length - 1) {
-                        const newPhase = i;
-                        if (newPhase !== this.state.currentPhase) {
-                            this.changePhase(newPhase);
-                        }
-                        break;
-                    }
-                }
-                
-                // Update UI info
-                const currentPhase = this.allPhases[this.state.currentPhase];
-                document.getElementById('phase').textContent = currentPhase.name;
-                document.getElementById('age').textContent = `${Math.floor(this.state.age * 10) / 10} Million Years`;
-                document.getElementById('phaseLabel').textContent = currentPhase.name;
-                
-                // Display phase description
-                const phaseInfo = document.getElementById('phaseLabel');
-                phaseInfo.textContent = `${currentPhase.name}: ${currentPhase.description}`;
-                
-                // If we've reached the end of simulation
-                if (this.state.age >= totalTime) {
-                    this.pauseSimulation();
-                }
-            }
-            
-            changePhase(newPhaseIndex) {
-                const newPhase = this.allPhases[newPhaseIndex];
-                this.state.currentPhase = newPhaseIndex;
-                
-                // Create color tween for star
-                new TWEEN.Tween(this.star.material.color)
-                    .to(new THREE.Color(newPhase.color), 2000)
-                    .easing(TWEEN.Easing.Cubic.InOut)
-                    .start();
-                
-                new TWEEN.Tween(this.star.material.emissive)
-                    .to(new THREE.Color(newPhase.color), 2000)
-                    .easing(TWEEN.Easing.Cubic.InOut)
-                    .start();
-                
-                new TWEEN.Tween(this.starGlow.material.color)
-                    .to(new THREE.Color(newPhase.color), 2000)
-                    .easing(TWEEN.Easing.Cubic.InOut)
-                    .start();
-                
-                // Update starlight color
-                new TWEEN.Tween(this.starLight.color)
-                    .to(new THREE.Color(newPhase.color), 2000)
-                    .easing(TWEEN.Easing.Cubic.InOut)
-                    .start();
-                
-                // Make visual changes based on the specific phase
-                switch (newPhase.name) {
-                    case "Nebula":
-                        // Show nebula, hide star
-                        this.nebulaParticles.visible = true;
-                        this.star.visible = false;
-                        this.starGlow.visible = false;
-                        
-                        // Reset star scale for next phase
-                        this.star.scale.set(0.1, 0.1, 0.1);
-                        this.starGlow.scale.set(0.1, 0.1, 0.1);
-                        
-                        document.getElementById('temperature').textContent = "10-100 K";
-                        document.getElementById('size').textContent = "Several Light Years";
-                        break;
-                        
-                    case "Protostar":
-                        // Start to collapse nebula, make star visible
-                        this.star.visible = true;
-                        this.starGlow.visible = true;
-                        
-                        // Shrink nebula
-                        new TWEEN.Tween(this.nebulaParticles.scale)
-                            .to({ x: 0.5, y: 0.5, z: 0.5 }, 5000)
-                            .easing(TWEEN.Easing.Cubic.In)
-                            .start();
-                        
-                        // Grow star
-                        new TWEEN.Tween(this.star.scale)
-                            .to({ x: 0.5, y: 0.5, z: 0.5 }, 5000)
-                            .easing(TWEEN.Easing.Cubic.Out)
-                            .start();
-                        
-                        new TWEEN.Tween(this.starGlow.scale)
-                            .to({ x: 0.6, y: 0.6, z: 0.6 }, 5000)
-                            .easing(TWEEN.Easing.Cubic.Out)
-                            .start();
-                            
-                        document.getElementById('temperature').textContent = "~2000-3000 K";
-                        document.getElementById('size').textContent = "~100x Solar Radius";
-                        break;
-                        
-                    case "Main Sequence":
-                        // Remove nebula, stabilize star
-                        this.nebulaParticles.visible = false;
-                        
-                        // Set star size based on mass
-                        const mainSequenceSize = 0.8 + (this.state.starMass * 0.2);
-                        
-                        new TWEEN.Tween(this.star.scale)
-                            .to({ x: mainSequenceSize, y: mainSequenceSize, z: mainSequenceSize }, 3000)
-                            .easing(TWEEN.Easing.Cubic.Out)
-                            .start();
-                        
-                        new TWEEN.Tween(this.starGlow.scale)
-                            .to({ x: mainSequenceSize * 1.2, y: mainSequenceSize * 1.2, z: mainSequenceSize * 1.2 }, 3000)
-                            .easing(TWEEN.Easing.Cubic.Out)
-                            .start();
-                            
-                        // Temperature and size vary with mass
-                        const temp = Math.floor(5000 + this.state.starMass * 1000);
-                        document.getElementById('temperature').textContent = `~${temp} K`;
-                        document.getElementById('size').textContent = `${mainSequenceSize.toFixed(1)} Solar Radius`;
-                        break;
-                        
-                    case "Red Giant":
-                    case "Red Supergiant":
-                        // Expand star dramatically
-                        const giantSize = 2 + (this.state.starMass * 0.5);
-                        
-                        new TWEEN.Tween(this.star.scale)
-                            .to({ x: giantSize, y: giantSize, z: giantSize }, 4000)
-                            .easing(TWEEN.Easing.Cubic.Out)
-                            .start();
-                        
-                        new TWEEN.Tween(this.starGlow.scale)
-                            .to({ x: giantSize * 1.2, y: giantSize * 1.2, z: giantSize * 1.2 }, 4000)
-                            .easing(TWEEN.Easing.Cubic.Out)
-                            .start();
-                            
-                        document.getElementById('temperature').textContent = "3000-4000 K";
-                        document.getElementById('size').textContent = `${(giantSize * 100).toFixed(0)} Solar Radius`;
-                        break;
-                        
-                    case "Blue Supergiant":
-                        // Large but extremely hot star
-                        const blueSize = 2 + (this.state.starMass * 0.3);
-                        
-                        new TWEEN.Tween(this.star.scale)
-                            .to({ x: blueSize, y: blueSize, z: blueSize }, 4000)
-                            .easing(TWEEN.Easing.Cubic.Out)
-                            .start();
-                        
-                        new TWEEN.Tween(this.starGlow.scale)
-                            .to({ x: blueSize * 1.2, y: blueSize * 1.2, z: blueSize * 1.2 }, 4000)
-                            .easing(TWEEN.Easing.Cubic.Out)
-                            .start();
-                            
-                        document.getElementById('temperature').textContent = "20,000-30,000 K";
-                        document.getElementById('size').textContent = `${(blueSize * 20).toFixed(0)} Solar Radius`;
-                        break;
-                        
-                    case "Planetary Nebula":
-                        // Expel outer layers
-                        this.createEjectedMaterial();
-                        
-                        // Shrink star core
-                        new TWEEN.Tween(this.star.scale)
-                            .to({ x: 0.3, y: 0.3, z: 0.3 }, 5000)
-                            .easing(TWEEN.Easing.Cubic.InOut)
-                            .start();
-                        
-                        new TWEEN.Tween(this.starGlow.scale)
-                            .to({ x: 0.36, y: 0.36, z: 0.36 }, 5000)
-                            .easing(TWEEN.Easing.Cubic.InOut)
-                            .start();
-                            
-                        document.getElementById('temperature').textContent = "6000-8000 K (core)";
-                        document.getElementById('size').textContent = "0.3 Solar Radius (core)";
-                        break;
-                        
-                    case "Supernova":
-                    case "Hypernova":
-                        // Dramatic explosion
-                        this.createExplosion(newPhase.name === "Hypernova" ? 1.5 : 1.0);
-                        
-                        // Hide star temporarily
-                        setTimeout(() => {
-                            this.star.visible = false;
-                            this.starGlow.visible = false;
-                        }, 2000);
-                        
-                        // Show star remnant after explosion
-                        setTimeout(() => {
-                            this.star.visible = true;
-                            this.starGlow.visible = true;
-                            this.star.scale.set(0.2, 0.2, 0.2);
-                            this.starGlow.scale.set(0.24, 0.24, 0.24);
-                        }, 6000);
-                        
-                        document.getElementById('temperature').textContent = "Billions of K";
-                        document.getElementById('size').textContent = "Expanding Shockwave";
-                        break;
-                        
-                    case "White Dwarf":
-                        // Small, hot remnant
-                        new TWEEN.Tween(this.star.scale)
-                            .to({ x: 0.2, y: 0.2, z: 0.2 }, 3000)
-                            .easing(TWEEN.Easing.Cubic.Out)
-                            .start();
-                        
-                        new TWEEN.Tween(this.starGlow.scale)
-                            .to({ x: 0.24, y: 0.24, z: 0.24 }, 3000)
-                            .easing(TWEEN.Easing.Cubic.Out)
-                            .start();
-                            
-                        document.getElementById('temperature').textContent = "~20,000-100,000 K";
-                        document.getElementById('size').textContent = "~Earth Radius";
-                        break;
-                        
-                    case "Neutron Star":
-                        // Tiny, incredibly dense remnant
-                        new TWEEN.Tween(this.star.scale)
-                            .to({ x: 0.1, y: 0.1, z: 0.1 }, 3000)
-                            .easing(TWEEN.Easing.Cubic.Out)
-                            .start();
-                        
-                        new TWEEN.Tween(this.starGlow.scale)
-                            .to({ x: 0.2, y: 0.2, z: 0.2 }, 3000)
-                            .easing(TWEEN.Easing.Cubic.Out)
-                            .start();
-                            
-                        document.getElementById('temperature').textContent = "600,000+ K";
-                        document.getElementById('size').textContent = "~20 km radius";
-                        break;
-                        
-                    case "Black Hole":
-                        // Almost invisible object with strong light bending effects
-                        new TWEEN.Tween(this.star.scale)
-                            .to({ x: 0.05, y: 0.05, z: 0.05 }, 3000)
-                            .easing(TWEEN.Easing.Cubic.Out)
-                            .start();
-                        
-                        // Create accretion disk
-                        this.createAccretionDisk();
-                        
-                        document.getElementById('temperature').textContent = "N/A";
-                        document.getElementById('size').textContent = `${(this.state.starMass * 3).toFixed(0)} km (Event Horizon)`;
-                        break;
-                }
-            }
-            
-            createEjectedMaterial() {
-                // Create planetary nebula effect
-                const particleCount = 2000;
-                const particles = new THREE.BufferGeometry();
-                const pMaterial = new THREE.PointsMaterial({
-                    color: 0x50ff50,
-                    size: 0.08,
-                    transparent: true,
-                    opacity: 0.7
-                });
-                
-                const positions = new Float32Array(particleCount * 3);
-                const velocities = [];
-                
-                for (let i = 0; i < particleCount; i++) {
-                    // Create a shell-like distribution
-                    const radius = 1.0;
-                    const theta = Math.random() * Math.PI * 2;
-                    const phi = Math.random() * Math.PI;
-                    
-                    const x = radius * Math.sin(phi) * Math.cos(theta);
-                    const y = radius * Math.sin(phi) * Math.sin(theta);
-                    const z = radius * Math.cos(phi);
-                    
-                    positions[i * 3] = x;
-                    positions[i * 3 + 1] = y;
-                    positions[i * 3 + 2] = z;
-                    
-                    // Store velocity for animation
-                    velocities.push({
-                        x: x * (0.5 + Math.random() * 0.5),
-                        y: y * (0.5 + Math.random() * 0.5),
-                        z: z * (0.5 + Math.random() * 0.5)
-                    });
-                }
-                
-                particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-                
-                this.ejectedMaterial = new THREE.Points(particles, pMaterial);
-                this.scene.add(this.ejectedMaterial);
-                
-                // Store velocities for animation
-                this.ejectedMaterial.userData.velocities = velocities;
-                this.ejectedMaterial.userData.age = 0;
-            }
-            
-            createExplosion(intensity = 1.0) {
-                // Create supernova explosion effect
-                const particleCount = 5000;
-                const particles = new THREE.BufferGeometry();
-                const pMaterial = new THREE.PointsMaterial({
-                    color: 0xffaa00,
-                    size: 0.1,
-                    transparent: true,
-                    opacity: 0.8
-                });
-                
-                const positions = new Float32Array(particleCount * 3);
-                const velocities = [];
-                const particleSizes = new Float32Array(particleCount);
-                
-                for (let i = 0; i < particleCount; i++) {
-                    // Create spherical distribution
-                    const radius = Math.random() * 0.2;
-                    const theta = Math.random() * Math.PI * 2;
-                    const phi = Math.random() * Math.PI;
-                    
-                    const x = radius * Math.sin(phi) * Math.cos(theta);
-                    const y = radius * Math.sin(phi) * Math.sin(theta);
-                    const z = radius * Math.cos(phi);
-                    
-                    positions[i * 3] = x;
-                    positions[i * 3 + 1] = y;
-                    positions[i * 3 + 2] = z;
-                    
-                    // Explosion velocity
-                    const speed = (1 + Math.random()) * intensity;
-                    velocities.push({
-                        x: x * speed,
-                        y: y * speed,
-                        z: z * speed
-                    });
-                    
-                    // Random particle sizes
-                    particleSizes[i] = 0.05 + Math.random() * 0.1;
-                }
-                
-                particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-                particles.setAttribute('size', new THREE.BufferAttribute(particleSizes, 1));
-                
-                this.explosion = new THREE.Points(particles, pMaterial);
-                this.scene.add(this.explosion);
-                
-                // Store velocities for animation
-                this.explosion.userData.velocities = velocities;
-                this.explosion.userData.age = 0;
-                
-                // Flash effect
-                const flashLight = new THREE.PointLight(0xffdd00, 3, 50);
-                flashLight.position.set(0, 0, 0);
-                this.scene.add(flashLight);
-                
-                // Remove flash after 2 seconds
-                setTimeout(() => {
-                    this.scene.remove(flashLight);
-                }, 2000);
-            }
-            
-            createAccretionDisk() {
-                // Create geometry for disk
-                const diskGeometry = new THREE.TorusGeometry(0.5, 0.2, 16, 100);
-                const diskMaterial = new THREE.MeshBasicMaterial({
-                    color: 0xff3300,
-                    transparent: true,
-                    opacity: 0.7
-                });
-                
-                this.accretionDisk = new THREE.Mesh(diskGeometry, diskMaterial);
-                this.accretionDisk.rotation.x = Math.PI / 2;
-                this.scene.add(this.accretionDisk);
-                
-                // Add particle jet
-                const jetGeometry = new THREE.BufferGeometry();
-                const jetMaterial = new THREE.PointsMaterial({
-                    color: 0x00aaff,
-                    size: 0.05,
-                    transparent: true,
-                    opacity: 0.6
-                });
-                
-                const particleCount = 500;
-                const positions = new Float32Array(particleCount * 3);
-                
-                for (let i = 0; i < particleCount; i++) {
-                    const height = Math.random() * 4;
-                    const spread = 0.1 + (height / 10);
-                    
-                    positions[i * 3] = (Math.random() - 0.5) * spread;
-                    positions[i * 3 + 1] = (i < particleCount / 2) ? height : -height;
-                    positions[i * 3 + 2] = (Math.random() - 0.5) * spread;
-                }
-                
-                jetGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-                
-                this.jet = new THREE.Points(jetGeometry, jetMaterial);
-                this.scene.add(this.jet);
-            }
-            
-            updateSimulation(deltaTime) {
-                if (!this.state.running || this.state.paused) return;
-                
-                // Update star age based on time scale
-                this.state.age += 0.1 * this.state.timeScale * deltaTime;
-                
-                // Update phase based on age
-                this.updatePhase();
-                
-                // Update nebula in first phase
-                if (this.state.currentPhase === 0 && this.nebulaParticles.visible) {
-                    // Make nebula swirl and collapse slowly
-                    this.nebulaParticles.rotation.y += 0.001 * this.state.timeScale;
-                    
-                    // Apply turbulence to nebula particles
-                    const positions = this.nebulaCloud.geometry.attributes.position.array;
-                    
-                    for (let i = 0; i < positions.length; i += 3) {
-                        // Get current position
-                        const x = positions[i];
-                        const y = positions[i + 1];
-                        const z = positions[i + 2];
-                        
-                        // Calculate distance from center
-                        const distance = Math.sqrt(x * x + y * y + z * z);
-                        
-                        if (distance > 2) {
-                            // Move towards center
-                            const factor = 0.997 - (this.state.turbulence * 0.001);
-                            positions[i] *= factor;
-                            positions[i + 1] *= factor;
-                            positions[i + 2] *= factor;
-                            
-                            // Add some random motion (turbulence)
-                            positions[i] += (Math.random() - 0.5) * 0.01 * this.state.turbulence;
-                            positions[i + 1] += (Math.random() - 0.5) * 0.01 * this.state.turbulence;
-                            positions[i + 2] += (Math.random() - 0.5) * 0.01 * this.state.turbulence;
-                        }
-                    }
-                    
-                    this.nebulaCloud.geometry.attributes.position.needsUpdate = true;
-                }
-                
-                // Update ejected material if it exists
-                if (this.ejectedMaterial) {
-                    const positions = this.ejectedMaterial.geometry.attributes.position.array;
-                    const velocities = this.ejectedMaterial.userData.velocities;
-                    
-                    for (let i = 0; i < positions.length / 3; i++) {
-                        positions[i * 3] += velocities[i].x * 0.01 * this.state.timeScale;
-                        positions[i * 3 + 1] += velocities[i].y * 0.01 * this.state.timeScale;
-                        positions[i * 3 + 2] += velocities[i].z * 0.01 * this.state.timeScale;
-                    }
-                    
-                    this.ejectedMaterial.geometry.attributes.position.needsUpdate = true;
-                    
-                    // Age the ejected material
-                    this.ejectedMaterial.userData.age += deltaTime * this.state.timeScale;
-                    
-                    // Fade out over time
-                    if (this.ejectedMaterial.userData.age > 5) {
-                        this.ejectedMaterial.material.opacity = Math.max(0, 0.7 - (this.ejectedMaterial.userData.age - 5) / 10);
-                        
-                        if (this.ejectedMaterial.material.opacity <= 0) {
-                            this.scene.remove(this.ejectedMaterial);
-                            this.ejectedMaterial = null;
-                        }
-                    }
-                }
-                
-                // Update explosion if it exists
-                if (this.explosion) {
-                    const positions = this.explosion.geometry.attributes.position.array;
-                    const velocities = this.explosion.userData.velocities;
-                    
-                    for (let i = 0; i < positions.length / 3; i++) {
-                        positions[i * 3] += velocities[i].x * 0.05 * this.state.timeScale;
-                        positions[i * 3 + 1] += velocities[i].y * 0.05 * this.state.timeScale;
-                        positions[i * 3 + 2] += velocities[i].z * 0.05 * this.state.timeScale;
-                    }
-                    
-                    this.explosion.geometry.attributes.position.needsUpdate = true;
-                    
-                    // Age the explosion
-                    this.explosion.userData.age += deltaTime * this.state.timeScale;
-                    
-                    // Fade out over time
-                    if (this.explosion.userData.age > 2) {
-                        this.explosion.material.opacity = Math.max(0, 0.8 - (this.explosion.userData.age - 2) / 5);
-                        
-                        if (this.explosion.material.opacity <= 0) {
-                            this.scene.remove(this.explosion);
-                            this.explosion = null;
-                        }
-                    }
-                }
-                
-                // Animate star surface with noise
-                if (this.star.visible) {
-                    this.star.rotation.y += 0.01 * deltaTime * this.state.timeScale;
-                    this.starGlow.rotation.y -= 0.005 * deltaTime * this.state.timeScale;
-                }
-                
-                // Animate accretion disk if it exists
-                if (this.accretionDisk) {
-                    this.accretionDisk.rotation.z += 0.2 * deltaTime * this.state.timeScale;
-                    
-                    // Animate jet
-                    if (this.jet) {
-                        const positions = this.jet.geometry.attributes.position.array;
-                        
-                        for (let i = 0; i < positions.length / 3; i++) {
-                            // Move particles along the jet direction
-                            const direction = positions[i * 3 + 1] > 0 ? 1 : -1;
-                            positions[i * 3 + 1] += direction * 0.1 * this.state.timeScale;
-                            
-                            // Reset particles that go too far
-                            if (Math.abs(positions[i * 3 + 1]) > 4) {
-                                positions[i * 3] = (Math.random() - 0.5) * 0.1;
-                                positions[i * 3 + 1] = direction * 0.1;
-                                positions[i * 3 + 2] = (Math.random() - 0.5) * 0.1;
-                            }
-                            
-                            // Add some jitter
-                            positions[i * 3] += (Math.random() - 0.5) * 0.01;
-                            positions[i * 3 + 2] += (Math.random() - 0.5) * 0.01;
-                        }
-                        
-                        this.jet.geometry.attributes.position.needsUpdate = true;
-                    }
-                }
-            }
-            
-            setupEventListeners() {
-                // UI control event listeners
-                document.getElementById('massRange').addEventListener('input', (e) => {
-                    this.state.starMass = parseFloat(e.target.value);
-                    document.getElementById('massValue').textContent = `${this.state.starMass.toFixed(1)} M☉`;
-                    document.getElementById('mass').textContent = `${this.state.starMass.toFixed(1)} Solar Masses`;
-                });
-                
-                document.getElementById('speedRange').addEventListener('input', (e) => {
-                    this.state.timeScale = parseFloat(e.target.value);
-                    document.getElementById('speedValue').textContent = `${this.state.timeScale}x`;
-                });
-                
-                document.getElementById('turbulenceRange').addEventListener('input', (e) => {
-                    this.state.turbulence = parseFloat(e.target.value);
-                    document.getElementById('turbulenceValue').textContent = this.state.turbulence.toFixed(1);
-                });
-                
-                document.getElementById('autoRotate').addEventListener('change', (e) => {
-                    this.state.autoRotate = e.target.checked;
-                    this.controls.autoRotate = this.state.autoRotate;
-                });
-                
-                // Button controls
-                document.getElementById('startSimulation').addEventListener('click', () => {
-                    this.startSimulation();
-                });
-                
-                document.getElementById('pauseSimulation').addEventListener('click', () => {
-                    this.pauseSimulation();
-                });
-                
-                document.getElementById('resetSimulation').addEventListener('click', () => {
-                    this.resetSimulation();
-                });
-                
-                document.getElementById('stopSimulation').addEventListener('click', () => {
-                    this.stopSimulation();
-                });
-                
-                document.getElementById('startButton').addEventListener('click', () => {
-                    document.getElementById('home').style.display = 'none';
-                });
-            }
-            
-            startSimulation() {
-                this.state.running = true;
-                this.state.paused = false;
-            }
-            
-            pauseSimulation() {
-                this.state.paused = true;
-            }
-            
-            resetSimulation() {
-                // Reset state
-                this.state.age = 0;
-                this.state.currentPhase = 0;
-                
-                // Reset timeline progress
-                document.getElementById('timelineProgress').style.width = '0%';
-                
-                // Clean up any temporary objects
-                if (this.ejectedMaterial) {
-                    this.scene.remove(this.ejectedMaterial);
-                    this.ejectedMaterial = null;
-                }
-                
-                if (this.explosion) {
-                    this.scene.remove(this.explosion);
-                    this.explosion = null;
-                }
-                
-                if (this.accretionDisk) {
-                    this.scene.remove(this.accretionDisk);
-                    this.accretionDisk = null;
-                }
-                
-                if (this.jet) {
-                    this.scene.remove(this.jet);
-                    this.jet = null;
-                }
-                
-                // Recreate nebula
-                this.scene.remove(this.nebulaParticles);
-                this.createNebula();
-                
-                // Reset star
-                this.star.visible = false;
-                this.starGlow.visible = false;
-                this.star.scale.set(0.1, 0.1, 0.1);
-                this.starGlow.scale.set(0.1, 0.1, 0.1);
-                
-                // Reset simulation
-                this.state.running = true;
-                this.state.paused = false;
-                
-                // Update UI
-                document.getElementById('phase').textContent = "Nebula";
-                document.getElementById('age').textContent = "0 Million Years";
-                document.getElementById('phaseLabel').textContent = "Nebula: A cloud of gas and dust begins to collapse under gravity.";
-                document.getElementById('temperature').textContent = "10-100 K";
-                document.getElementById('size').textContent = "Several Light Years";
-            }
-            
-            stopSimulation() {
-                this.state.running = false;
-                this.state.paused = true;
-                document.getElementById('home').style.display = 'flex';
-            }
-            
-            animate(time) {
-                requestAnimationFrame(this.animate.bind(this));
-                
-                // Calculate delta time
-                const now = performance.now();
-                const deltaTime = (now - (this.lastTime || now)) / 1000;
-                this.lastTime = now;
-                
-                // Update TWEEN animations
-                TWEEN.update(time);
-                
-                // Update controls
-                this.controls.update();
-                
-                // Update simulation
-                this.updateSimulation(deltaTime);
-                
-                // Render scene
-                this.renderer.render(this.scene, this.camera);
-            }
-        }
-        
-        // Simple orbit controls implementation for THREE.js
-        class OrbitControls {
-            constructor(camera, domElement) {
-                this.camera = camera;
-                this.domElement = domElement;
-                
-                // Orbit state
-                this.target = new THREE.Vector3();
-                this.spherical = new THREE.Spherical().setFromVector3(
-                    camera.position.clone().sub(this.target)
-                );
-                
-                // Settings
-                this.rotateSpeed = 1.0;
-                this.zoomSpeed = 1.2;
-                this.dampingFactor = 0.1;
-                this.enableDamping = true;
-                this.autoRotate = false;
-                this.autoRotateSpeed = 1.0;
-                
-                // State
-                this.isMouseDown = false;
-                this.mouseButtons = { LEFT: 0, MIDDLE: 1, RIGHT: 2 };
-                this.pointerPosition = { x: 0, y: 0 };
-                this.lastPointerPosition = { x: 0, y: 0 };
-                
-                // Set initial camera position
-                this.update();
-                
-                // Set up event listeners
-                this.domElement.addEventListener('mousedown', this.onMouseDown.bind(this));
-                document.addEventListener('mousemove', this.onMouseMove.bind(this));
-                document.addEventListener('mouseup', this.onMouseUp.bind(this));
-                this.domElement.addEventListener('wheel', this.onMouseWheel.bind(this));
-                window.addEventListener('keydown', this.onKeyDown.bind(this));
-            }
-            
-            onMouseDown(event) {
-                event.preventDefault();
-                
-                this.isMouseDown = true;
-                this.lastPointerPosition.x = event.clientX;
-                this.lastPointerPosition.y = event.clientY;
-            }
-            
-            onMouseMove(event) {
-                if (!this.isMouseDown) return;
-                
-                const deltaX = event.clientX - this.lastPointerPosition.x;
-                const deltaY = event.clientY - this.lastPointerPosition.y;
-                
-                this.lastPointerPosition.x = event.clientX;
-                this.lastPointerPosition.y = event.clientY;
-                
-                // Rotate based on mouse movement
-                this.spherical.theta -= deltaX * 0.01 * this.rotateSpeed;
-                this.spherical.phi -= deltaY * 0.01 * this.rotateSpeed;
-                
-                // Clamp phi to avoid going over the poles
-                this.spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, this.spherical.phi));
-                
-                this.spherical.makeSafe();
-            }
-            
-            onMouseUp() {
-                this.isMouseDown = false;
-            }
-            
-            onMouseWheel(event) {
-                event.preventDefault();
-                
-                if (event.deltaY > 0) {
-                    this.dollyOut();
-                } else {
-                    this.dollyIn();
-                }
-            }
-            
-            onKeyDown(event) {
-                // WASD keys to move camera
-                switch (event.code) {
-                    case 'KeyW':
-                        this.spherical.phi = Math.max(0.1, this.spherical.phi - 0.1);
-                        break;
-                    case 'KeyS':
-                        this.spherical.phi = Math.min(Math.PI - 0.1, this.spherical.phi + 0.1);
-                        break;
-                    case 'KeyA':
-                        this.spherical.theta += 0.1;
-                        break;
-                    case 'KeyD':
-                        this.spherical.theta -= 0.1;
-                        break;
-                    case 'KeyQ':
-                        this.dollyIn();
-                        break;
-                    case 'KeyE':
-                        this.dollyOut();
-                        break;
-                }
-                
-                this.spherical.makeSafe();
-            }
-            
-            dollyIn() {
-                this.spherical.radius /= this.zoomSpeed;
-                // Clamp radius to avoid getting too close
-                this.spherical.radius = Math.max(1, this.spherical.radius);
-            }
-            
-            dollyOut() {
-                this.spherical.radius *= this.zoomSpeed;
-                // Clamp radius to avoid getting too far
-                this.spherical.radius = Math.min(100, this.spherical.radius);
-            }
-            
-            update() {
-                // Apply auto-rotation if enabled
-                if (this.autoRotate) {
-                    this.spherical.theta -= 0.01 * this.autoRotateSpeed;
-                }
-                
-                // Update camera position from spherical coordinates
-                const offset = new THREE.Vector3();
-                offset.setFromSpherical(this.spherical);
-                offset.add(this.target);
-                
-                this.camera.position.copy(offset);
-                this.camera.lookAt(this.target);
-                
-                return false;
-            }
-        }
-        
-        // Initialize the simulation when the page loads
-        window.addEventListener('load', () => {
-            new StellarLifecycleSimulation();
+      setupScene() {
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        this.camera.position.z = 15;
+        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setClearColor(0x000000);
+        document.getElementById('container').appendChild(this.renderer.domElement);
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.enableDamping = true;
+        this.controls.dampingFactor = 0.05;
+        window.addEventListener('resize', () => {
+          this.camera.aspect = window.innerWidth / window.innerHeight;
+          this.camera.updateProjectionMatrix();
+          this.renderer.setSize(window.innerWidth, window.innerHeight);
         });
-    </script>
+      }
+
+      setupLighting() {
+        this.ambientLight = new THREE.AmbientLight(0x333333);
+        this.scene.add(this.ambientLight);
+        this.starLight = new THREE.PointLight(0xffffff, 1.5, 100);
+        this.starLight.position.set(0, 0, 0);
+        this.scene.add(this.starLight);
+      }
+
+      createStarfield() {
+        const starsGeometry = new THREE.BufferGeometry();
+        const starsMaterial = new THREE.PointsMaterial({
+          color: 0xffffff,
+          size: 0.1,
+          transparent: true
+        });
+        const positions = new Float32Array(3000);
+        for (let i = 0; i < 3000; i += 3) {
+          positions[i] = (Math.random() - 0.5) * 200;
+          positions[i + 1] = (Math.random() - 0.5) * 200;
+          positions[i + 2] = (Math.random() - 0.5) * 200;
+        }
+        starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        this.starfield = new THREE.Points(starsGeometry, starsMaterial);
+        this.scene.add(this.starfield);
+      }
+
+      createNebula() {
+        this.nebulaParticles = new THREE.Group();
+        const particleCount = 1000;
+        const nebulaGeometry = new THREE.BufferGeometry();
+        const nebulaMaterial = new THREE.PointsMaterial({
+          color: 0x7070ff,
+          size: 0.1,
+          transparent: true,
+          opacity: 0.7
+        });
+        const positions = new Float32Array(particleCount * 3);
+        for (let i = 0; i < particleCount; i++) {
+          const radius = 5 + Math.random() * 5;
+          const theta = Math.random() * Math.PI * 2;
+          const phi = Math.random() * Math.PI;
+          const x = radius * Math.sin(phi) * Math.cos(theta);
+          const y = radius * Math.sin(phi) * Math.sin(theta);
+          const z = radius * Math.cos(phi);
+          positions[i * 3] = x;
+          positions[i * 3 + 1] = y;
+          positions[i * 3 + 2] = z;
+        }
+        nebulaGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        this.nebulaCloud = new THREE.Points(nebulaGeometry, nebulaMaterial);
+        this.nebulaParticles.add(this.nebulaCloud);
+        for (let i = 0; i < 5; i++) {
+          const cloudGeometry = new THREE.SphereGeometry(Math.random() * 2 + 1, 32, 32);
+          const cloudMaterial = new THREE.MeshStandardMaterial({
+            color: 0x6060ff,
+            transparent: true,
+            opacity: 0.2,
+            emissive: 0x3030aa,
+            emissiveIntensity: 0.2
+          });
+          const cloud = new THREE.Mesh(cloudGeometry, cloudMaterial);
+          cloud.position.set(
+            (Math.random() - 0.5) * 8,
+            (Math.random() - 0.5) * 8,
+            (Math.random() - 0.5) * 8
+          );
+          this.nebulaParticles.add(cloud);
+        }
+        this.scene.add(this.nebulaParticles);
+      }
+
+      createStar() {
+        const starGeometry = new THREE.SphereGeometry(1, 64, 64);
+        const starMaterial = new THREE.MeshStandardMaterial({
+          color: 0xffff00,
+          emissive: 0xffff00,
+          emissiveIntensity: 1
+        });
+        this.star = new THREE.Mesh(starGeometry, starMaterial);
+        this.star.scale.set(0.1, 0.1, 0.1);
+        this.scene.add(this.star);
+        const glowGeometry = new THREE.SphereGeometry(1.2, 32, 32);
+        const glowMaterial = new THREE.MeshBasicMaterial({
+          color: 0xffff00,
+          transparent: true,
+          opacity: 0.3
+        });
+        this.starGlow = new THREE.Mesh(glowGeometry, glowMaterial);
+        this.starGlow.scale.set(0.1, 0.1, 0.1);
+        this.scene.add(this.starGlow);
+        this.star.visible = false;
+        this.starGlow.visible = false;
+      }
+
+      updatePhase() {
+        let elapsedTime = 0;
+        let totalTime = 0;
+        this.allPhases = [...this.phases];
+        if (this.state.starMass < 4) {
+          this.allPhases = this.allPhases.concat(this.lowMassEndPhases);
+        } else if (this.state.starMass < 15) {
+          this.allPhases = this.allPhases.concat(this.highMassEndPhases);
+        } else {
+          this.allPhases = this.allPhases.concat(this.veryHighMassEndPhases);
+        }
+        totalTime = this.allPhases.reduce((sum, phase) => sum + phase.duration, 0);
+        const progress = this.state.age / totalTime;
+        document.getElementById('timelineProgress').style.width = `${progress * 100}%`;
+        for (let i = 0; i < this.allPhases.length; i++) {
+          elapsedTime += this.allPhases[i].duration;
+          if (this.state.age <= elapsedTime || i === this.allPhases.length - 1) {
+            const newPhase = i;
+            if (newPhase !== this.state.currentPhase) {
+              this.changePhase(newPhase);
+            }
+            break;
+          }
+        }
+        const currentPhase = this.allPhases[this.state.currentPhase];
+        document.getElementById('phase').textContent = currentPhase.name;
+        document.getElementById('age').textContent = `${Math.floor(this.state.age * 10) / 10} Million Years`;
+        document.getElementById('phaseLabel').textContent = `${currentPhase.name}: ${currentPhase.description}`;
+        if (this.state.age >= totalTime) {
+          this.pauseSimulation();
+        }
+      }
+
+      changePhase(newPhaseIndex) {
+        const newPhase = this.allPhases[newPhaseIndex];
+        this.state.currentPhase = newPhaseIndex;
+        new TWEEN.Tween(this.star.material.color)
+          .to(new THREE.Color(newPhase.color), 500)
+          .easing(TWEEN.Easing.Cubic.InOut)
+          .start();
+        new TWEEN.Tween(this.star.material.emissive)
+          .to(new THREE.Color(newPhase.color), 500)
+          .easing(TWEEN.Easing.Cubic.InOut)
+          .start();
+        new TWEEN.Tween(this.starGlow.material.color)
+          .to(new THREE.Color(newPhase.color), 500)
+          .easing(TWEEN.Easing.Cubic.InOut)
+          .start();
+        new TWEEN.Tween(this.starLight.color)
+          .to(new THREE.Color(newPhase.color), 500)
+          .easing(TWEEN.Easing.Cubic.InOut)
+          .start();
+
+        switch (newPhase.name) {
+          case "Nebula":
+            this.nebulaParticles.visible = true;
+            this.star.visible = false;
+            this.starGlow.visible = false;
+            this.star.scale.set(0.1, 0.1, 0.1);
+            this.starGlow.scale.set(0.1, 0.1, 0.1);
+            document.getElementById('temperature').textContent = "10-100 K";
+            document.getElementById('size').textContent = "Several Light Years";
+            break;
+          case "Protostar":
+            this.star.visible = true;
+            this.starGlow.visible = true;
+            new TWEEN.Tween(this.nebulaParticles.scale)
+              .to({ x: 0.5, y: 0.5, z: 0.5 }, 1250)
+              .easing(TWEEN.Easing.Cubic.In)
+              .start();
+            new TWEEN.Tween(this.star.scale)
+              .to({ x: 0.5, y: 0.5, z: 0.5 }, 1250)
+              .easing(TWEEN.Easing.Cubic.Out)
+              .start();
+            new TWEEN.Tween(this.starGlow.scale)
+              .to({ x: 0.6, y: 0.6, z: 0.6 }, 1250)
+              .easing(TWEEN.Easing.Cubic.Out)
+              .start();
+            document.getElementById('temperature').textContent = "~2000-3000 K";
+            document.getElementById('size').textContent = "~100x Solar Radius";
+            break;
+          case "Main Sequence":
+            this.nebulaParticles.visible = false;
+            const mainSequenceSize = 0.8 + (this.state.starMass * 0.2);
+            new TWEEN.Tween(this.star.scale)
+              .to({ x: mainSequenceSize, y: mainSequenceSize, z: mainSequenceSize }, 750)
+              .easing(TWEEN.Easing.Cubic.Out)
+              .start();
+            new TWEEN.Tween(this.starGlow.scale)
+              .to({ x: mainSequenceSize * 1.2, y: mainSequenceSize * 1.2, z: mainSequenceSize * 1.2 }, 750)
+              .easing(TWEEN.Easing.Cubic.Out)
+              .start();
+            const temp = Math.floor(5000 + this.state.starMass * 1000);
+            document.getElementById('temperature').textContent = `~${temp} K`;
+            document.getElementById('size').textContent = `${mainSequenceSize.toFixed(1)} Solar Radius`;
+            break;
+          case "Red Giant":
+          case "Red Supergiant":
+            const giantSize = 2 + (this.state.starMass * 0.5);
+            new TWEEN.Tween(this.star.scale)
+              .to({ x: giantSize, y: giantSize, z: giantSize }, 500)
+              .easing(TWEEN.Easing.Cubic.Out)
+              .start();
+            new TWEEN.Tween(this.starGlow.scale)
+              .to({ x: giantSize * 1.2, y: giantSize * 1.2, z: giantSize * 1.2 }, 500)
+              .easing(TWEEN.Easing.Cubic.Out)
+              .start();
+            document.getElementById('temperature').textContent = "3000-4000 K";
+            document.getElementById('size').textContent = `${(giantSize * 100).toFixed(0)} Solar Radius`;
+            break;
+          case "Blue Supergiant":
+            const blueSize = 2 + (this.state.starMass * 0.3);
+            new TWEEN.Tween(this.star.scale)
+              .to({ x: blueSize, y: blueSize, z: blueSize }, 500)
+              .easing(TWEEN.Easing.Cubic.Out)
+              .start();
+            new TWEEN.Tween(this.starGlow.scale)
+              .to({ x: blueSize * 1.2, y: blueSize * 1.2, z: blueSize * 1.2 }, 500)
+              .easing(TWEEN.Easing.Cubic.Out)
+              .start();
+            document.getElementById('temperature').textContent = "20,000-30,000 K";
+            document.getElementById('size').textContent = `${(blueSize * 20).toFixed(0)} Solar Radius`;
+            break;
+          case "Planetary Nebula":
+            this.createEjectedMaterial();
+            new TWEEN.Tween(this.star.scale)
+              .to({ x: 0.3, y: 0.3, z: 0.3 }, 1250)
+              .easing(TWEEN.Easing.Cubic.InOut)
+              .start();
+            new TWEEN.Tween(this.starGlow.scale)
+              .to({ x: 0.36, y: 0.36, z: 0.36 }, 1250)
+              .easing(TWEEN.Easing.Cubic.InOut)
+              .start();
+            document.getElementById('temperature').textContent = "6000-8000 K (core)";
+            document.getElementById('size').textContent = "0.3 Solar Radius (core)";
+            break;
+          case "Supernova":
+          case "Hypernova":
+            // HUGE explosion: more particles and higher velocity
+            this.createExplosion(newPhase.name === "Hypernova" ? 2.0 : 1.5);
+            this.shakeCamera(1000, 0.8);
+            setTimeout(() => {
+              this.star.visible = false;
+              this.starGlow.visible = false;
+            }, 500);
+            setTimeout(() => {
+              this.star.visible = true;
+              this.starGlow.visible = true;
+              this.star.scale.set(0.2, 0.2, 0.2);
+              this.starGlow.scale.set(0.24, 0.24, 0.24);
+            }, 3000);
+            document.getElementById('temperature').textContent = "Billions of K";
+            document.getElementById('size').textContent = "Expanding Shockwave";
+            break;
+          case "White Dwarf":
+            new TWEEN.Tween(this.star.scale)
+              .to({ x: 0.2, y: 0.2, z: 0.2 }, 750)
+              .easing(TWEEN.Easing.Cubic.Out)
+              .start();
+            new TWEEN.Tween(this.starGlow.scale)
+              .to({ x: 0.24, y: 0.24, z: 0.24 }, 750)
+              .easing(TWEEN.Easing.Cubic.Out)
+              .start();
+            document.getElementById('temperature').textContent = "~20,000-100,000 K";
+            document.getElementById('size').textContent = "~Earth Radius";
+            break;
+          case "Neutron Star":
+            new TWEEN.Tween(this.star.scale)
+              .to({ x: 0.1, y: 0.1, z: 0.1 }, 750)
+              .easing(TWEEN.Easing.Cubic.Out)
+              .start();
+            new TWEEN.Tween(this.starGlow.scale)
+              .to({ x: 0.2, y: 0.2, z: 0.2 }, 750)
+              .easing(TWEEN.Easing.Cubic.Out)
+              .start();
+            document.getElementById('temperature').textContent = "600,000+ K";
+            document.getElementById('size').textContent = "~20 km radius";
+            break;
+          case "Black Hole":
+            new TWEEN.Tween(this.star.scale)
+              .to({ x: 0.05, y: 0.05, z: 0.05 }, 750)
+              .easing(TWEEN.Easing.Cubic.Out)
+              .start();
+            this.createAccretionDisk();
+            document.getElementById('temperature').textContent = "N/A";
+            document.getElementById('size').textContent = `${(this.state.starMass * 3).toFixed(0)} km (Event Horizon)`;
+            break;
+        }
+      }
+
+      createEjectedMaterial() {
+        const particleCount = 2000;
+        const particles = new THREE.BufferGeometry();
+        const pMaterial = new THREE.PointsMaterial({
+          color: 0x50ff50,
+          size: 0.08,
+          transparent: true,
+          opacity: 0.7
+        });
+        const positions = new Float32Array(particleCount * 3);
+        const velocities = [];
+        for (let i = 0; i < particleCount; i++) {
+          const radius = 1.0;
+          const theta = Math.random() * Math.PI * 2;
+          const phi = Math.random() * Math.PI;
+          const x = radius * Math.sin(phi) * Math.cos(theta);
+          const y = radius * Math.sin(phi) * Math.sin(theta);
+          const z = radius * Math.cos(phi);
+          positions[i * 3] = x;
+          positions[i * 3 + 1] = y;
+          positions[i * 3 + 2] = z;
+          velocities.push({
+            x: x * (0.5 + Math.random() * 0.5),
+            y: y * (0.5 + Math.random() * 0.5),
+            z: z * (0.5 + Math.random() * 0.5)
+          });
+        }
+        particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        this.ejectedMaterial = new THREE.Points(particles, pMaterial);
+        this.scene.add(this.ejectedMaterial);
+        this.ejectedMaterial.userData.velocities = velocities;
+        this.ejectedMaterial.userData.age = 0;
+      }
+
+      createExplosion(intensity = 1.0) {
+        // HUGE explosion: increase particle count and velocity
+        const particleCount = 20000; // increased from 8000 to 20000
+        const particles = new THREE.BufferGeometry();
+        const pMaterial = new THREE.PointsMaterial({
+          color: 0xffaa00,
+          size: 0.15,
+          transparent: true,
+          opacity: 0.9
+        });
+        const positions = new Float32Array(particleCount * 3);
+        const velocities = [];
+        for (let i = 0; i < particleCount; i++) {
+          const radius = Math.random() * 1; // start slightly larger radius
+          const theta = Math.random() * Math.PI * 2;
+          const phi = Math.random() * Math.PI;
+          const x = radius * Math.sin(phi) * Math.cos(theta);
+          const y = radius * Math.sin(phi) * Math.sin(theta);
+          const z = radius * Math.cos(phi);
+          positions[i * 3] = x;
+          positions[i * 3 + 1] = y;
+          positions[i * 3 + 2] = z;
+          // Increase speed multiplier for a more powerful explosion
+          const speed = (1.5 + Math.random() * intensity);
+          velocities.push({
+            x: x * speed,
+            y: y * speed,
+            z: z * speed
+          });
+        }
+        particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        this.explosion = new THREE.Points(particles, pMaterial);
+        this.scene.add(this.explosion);
+        this.explosion.userData.velocities = velocities;
+        this.explosion.userData.age = 0;
+        const flashLight = new THREE.PointLight(0xffdd00, 4, 100);
+        flashLight.position.set(0, 0, 0);
+        this.scene.add(flashLight);
+        setTimeout(() => {
+          this.scene.remove(flashLight);
+        }, 500);
+        // Expanding shockwave ring
+        const ringGeometry = new THREE.RingGeometry(0.5, 0.7, 32);
+        const ringMaterial = new THREE.MeshBasicMaterial({
+          color: 0xffaa00,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 1
+        });
+        const shockwave = new THREE.Mesh(ringGeometry, ringMaterial);
+        shockwave.rotation.x = Math.PI / 2;
+        this.scene.add(shockwave);
+        new TWEEN.Tween(shockwave.scale)
+          .to({ x: 30, y: 30, z: 30 }, 2000)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .start();
+        new TWEEN.Tween(shockwave.material)
+          .to({ opacity: 0 }, 2000)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .onComplete(() => {
+            this.scene.remove(shockwave);
+          })
+          .start();
+      }
+
+      createAccretionDisk() {
+        const diskGeometry = new THREE.TorusGeometry(0.5, 0.2, 16, 100);
+        const diskMaterial = new THREE.MeshBasicMaterial({
+          color: 0xff3300,
+          transparent: true,
+          opacity: 0.7
+        });
+        this.accretionDisk = new THREE.Mesh(diskGeometry, diskMaterial);
+        this.accretionDisk.rotation.x = Math.PI / 2;
+        this.scene.add(this.accretionDisk);
+        const jetGeometry = new THREE.BufferGeometry();
+        const jetMaterial = new THREE.PointsMaterial({
+          color: 0x00aaff,
+          size: 0.05,
+          transparent: true,
+          opacity: 0.6
+        });
+        const particleCount = 500;
+        const positions = new Float32Array(particleCount * 3);
+        for (let i = 0; i < particleCount; i++) {
+          const height = Math.random() * 4;
+          const spread = 0.1 + (height / 10);
+          positions[i * 3] = (Math.random() - 0.5) * spread;
+          positions[i * 3 + 1] = (i < particleCount / 2) ? height : -height;
+          positions[i * 3 + 2] = (Math.random() - 0.5) * spread;
+        }
+        jetGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        this.jet = new THREE.Points(jetGeometry, jetMaterial);
+        this.scene.add(this.jet);
+      }
+
+      shakeCamera(duration = 500, magnitude = 0.5) {
+        const originalPosition = this.camera.position.clone();
+        let elapsed = 0;
+        const shake = () => {
+          if (elapsed < duration) {
+            const offset = new THREE.Vector3(
+              (Math.random() - 0.5) * magnitude,
+              (Math.random() - 0.5) * magnitude,
+              (Math.random() - 0.5) * magnitude
+            );
+            this.camera.position.copy(originalPosition.clone().add(offset));
+            elapsed += 16;
+            requestAnimationFrame(shake);
+          } else {
+            this.camera.position.copy(originalPosition);
+          }
+        };
+        shake();
+      }
+
+      createSolarFlare() {
+        const flareGeometry = new THREE.SphereGeometry(this.star.scale.x * 1.5, 32, 32);
+        const flareMaterial = new THREE.MeshBasicMaterial({ color: 0xffffee, transparent: true, opacity: 0.8 });
+        const flare = new THREE.Mesh(flareGeometry, flareMaterial);
+        flare.position.copy(this.star.position);
+        this.scene.add(flare);
+        new TWEEN.Tween(flare.scale)
+          .to({ x: this.star.scale.x * 2.5, y: this.star.scale.x * 2.5, z: this.star.scale.x * 2.5 }, 500)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .start();
+        new TWEEN.Tween(flare.material)
+          .to({ opacity: 0 }, 500)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .onComplete(() => {
+            this.scene.remove(flare);
+          })
+          .start();
+      }
+
+      updateSimulation(deltaTime) {
+        if (!this.state.running || this.state.paused) return;
+        this.state.age += 0.1 * this.state.timeScale * deltaTime;
+        this.updatePhase();
+        if (this.state.currentPhase === 0 && this.nebulaParticles.visible) {
+          this.nebulaParticles.rotation.y += 0.001 * this.state.timeScale;
+          const positions = this.nebulaCloud.geometry.attributes.position.array;
+          for (let i = 0; i < positions.length; i += 3) {
+            const x = positions[i];
+            const y = positions[i + 1];
+            const z = positions[i + 2];
+            const distance = Math.sqrt(x * x + y * y + z * z);
+            if (distance > 2) {
+              const factor = 0.997 - (this.state.turbulence * 0.001);
+              positions[i] *= factor;
+              positions[i + 1] *= factor;
+              positions[i + 2] *= factor;
+              positions[i] += (Math.random() - 0.5) * 0.01 * this.state.turbulence;
+              positions[i + 1] += (Math.random() - 0.5) * 0.01 * this.state.turbulence;
+              positions[i + 2] += (Math.random() - 0.5) * 0.01 * this.state.turbulence;
+            }
+          }
+          this.nebulaCloud.geometry.attributes.position.needsUpdate = true;
+        }
+        if (this.ejectedMaterial) {
+          const positions = this.ejectedMaterial.geometry.attributes.position.array;
+          const velocities = this.ejectedMaterial.userData.velocities;
+          for (let i = 0; i < positions.length / 3; i++) {
+            positions[i * 3] += velocities[i].x * 0.01 * this.state.timeScale;
+            positions[i * 3 + 1] += velocities[i].y * 0.01 * this.state.timeScale;
+            positions[i * 3 + 2] += velocities[i].z * 0.01 * this.state.timeScale;
+          }
+          this.ejectedMaterial.geometry.attributes.position.needsUpdate = true;
+          this.ejectedMaterial.userData.age += deltaTime * this.state.timeScale;
+          if (this.ejectedMaterial.userData.age > 5) {
+            this.ejectedMaterial.material.opacity = Math.max(0, 0.7 - (this.ejectedMaterial.userData.age - 5) / 10);
+            if (this.ejectedMaterial.material.opacity <= 0) {
+              this.scene.remove(this.ejectedMaterial);
+              this.ejectedMaterial = null;
+            }
+          }
+        }
+        if (this.explosion) {
+          const positions = this.explosion.geometry.attributes.position.array;
+          const velocities = this.explosion.userData.velocities;
+          for (let i = 0; i < positions.length / 3; i++) {
+            positions[i * 3] += velocities[i].x * 0.1 * this.state.timeScale;
+            positions[i * 3 + 1] += velocities[i].y * 0.1 * this.state.timeScale;
+            positions[i * 3 + 2] += velocities[i].z * 0.1 * this.state.timeScale;
+          }
+          this.explosion.geometry.attributes.position.needsUpdate = true;
+          this.explosion.userData.age += deltaTime * this.state.timeScale;
+          if (this.explosion.userData.age > 2) {
+            this.explosion.material.opacity = Math.max(0, 0.9 - (this.explosion.userData.age - 2) / 5);
+            if (this.explosion.material.opacity <= 0) {
+              this.scene.remove(this.explosion);
+              this.explosion = null;
+            }
+          }
+        }
+        if (this.star.visible) {
+          this.star.rotation.y += 0.01 * deltaTime * this.state.timeScale;
+          this.starGlow.rotation.y -= 0.005 * deltaTime * this.state.timeScale;
+        }
+        if (this.accretionDisk) {
+          this.accretionDisk.rotation.z += 0.2 * deltaTime * this.state.timeScale;
+          if (this.jet) {
+            const positions = this.jet.geometry.attributes.position.array;
+            for (let i = 0; i < positions.length / 3; i++) {
+              const direction = positions[i * 3 + 1] > 0 ? 1 : -1;
+              positions[i * 3 + 1] += direction * 0.1 * this.state.timeScale;
+              if (Math.abs(positions[i * 3 + 1]) > 4) {
+                positions[i * 3] = (Math.random() - 0.5) * 0.1;
+                positions[i * 3 + 1] = direction * 0.1;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 0.1;
+              }
+              positions[i * 3] += (Math.random() - 0.5) * 0.01;
+              positions[i * 3 + 2] += (Math.random() - 0.5) * 0.01;
+            }
+            this.jet.geometry.attributes.position.needsUpdate = true;
+          }
+        }
+        if (this.allPhases[this.state.currentPhase].name === "Main Sequence") {
+          if (performance.now() - this.lastFlareTime > 5000) {
+            if (Math.random() < 0.05) {
+              this.createSolarFlare();
+              this.lastFlareTime = performance.now();
+            }
+          }
+        }
+        if (this.allPhases[this.state.currentPhase].name === "Protostar") {
+          const pulse = 1 + 0.05 * Math.sin(performance.now() * 0.005);
+          this.starGlow.scale.set(pulse, pulse, pulse);
+        }
+      }
+
+      setupEventListeners() {
+        document.getElementById('massRange').addEventListener('input', (e) => {
+          this.state.starMass = parseFloat(e.target.value);
+          document.getElementById('massValue').textContent = `${this.state.starMass.toFixed(1)} M☉`;
+          document.getElementById('mass').textContent = `${this.state.starMass.toFixed(1)} Solar Masses`;
+        });
+        document.getElementById('speedRange').addEventListener('input', (e) => {
+          this.state.timeScale = parseFloat(e.target.value);
+          document.getElementById('speedValue').textContent = `${this.state.timeScale}x`;
+        });
+        document.getElementById('turbulenceRange').addEventListener('input', (e) => {
+          this.state.turbulence = parseFloat(e.target.value);
+          document.getElementById('turbulenceValue').textContent = this.state.turbulence.toFixed(1);
+        });
+        document.getElementById('autoRotate').addEventListener('change', (e) => {
+          this.state.autoRotate = e.target.checked;
+          this.controls.autoRotate = this.state.autoRotate;
+        });
+        document.getElementById('startSimulation').addEventListener('click', () => {
+          this.startSimulation();
+        });
+        document.getElementById('pauseSimulation').addEventListener('click', () => {
+          this.pauseSimulation();
+        });
+        document.getElementById('resetSimulation').addEventListener('click', () => {
+          this.resetSimulation();
+        });
+        document.getElementById('stopSimulation').addEventListener('click', () => {
+          this.stopSimulation();
+        });
+        document.getElementById('startButton').addEventListener('click', () => {
+          document.getElementById('home').style.display = 'none';
+        });
+      }
+
+      startSimulation() {
+        this.state.running = true;
+        this.state.paused = false;
+      }
+
+      pauseSimulation() {
+        this.state.paused = true;
+      }
+
+      resetSimulation() {
+        this.state.age = 0;
+        this.state.currentPhase = 0;
+        document.getElementById('timelineProgress').style.width = '0%';
+        if (this.ejectedMaterial) {
+          this.scene.remove(this.ejectedMaterial);
+          this.ejectedMaterial = null;
+        }
+        if (this.explosion) {
+          this.scene.remove(this.explosion);
+          this.explosion = null;
+        }
+        if (this.accretionDisk) {
+          this.scene.remove(this.accretionDisk);
+          this.accretionDisk = null;
+        }
+        if (this.jet) {
+          this.scene.remove(this.jet);
+          this.jet = null;
+        }
+        this.scene.remove(this.nebulaParticles);
+        this.createNebula();
+        this.star.visible = false;
+        this.starGlow.visible = false;
+        this.star.scale.set(0.1, 0.1, 0.1);
+        this.starGlow.scale.set(0.1, 0.1, 0.1);
+        this.state.running = true;
+        this.state.paused = false;
+        document.getElementById('phase').textContent = "Nebula";
+        document.getElementById('age').textContent = "0 Million Years";
+        document.getElementById('phaseLabel').textContent = "Nebula: A cloud of gas and dust begins to collapse under gravity.";
+        document.getElementById('temperature').textContent = "10-100 K";
+        document.getElementById('size').textContent = "Several Light Years";
+      }
+
+      stopSimulation() {
+        this.state.running = false;
+        this.state.paused = true;
+        document.getElementById('home').style.display = 'flex';
+      }
+
+      animate(time) {
+        requestAnimationFrame(this.animate.bind(this));
+        const now = performance.now();
+        const deltaTime = (now - (this.lastTime || now)) / 1000;
+        this.lastTime = now;
+        TWEEN.update(time);
+        this.controls.update();
+        this.updateSimulation(deltaTime);
+        this.renderer.render(this.scene, this.camera);
+      }
+    }
+
+    class OrbitControls {
+      constructor(camera, domElement) {
+        this.camera = camera;
+        this.domElement = domElement;
+        this.target = new THREE.Vector3();
+        this.spherical = new THREE.Spherical().setFromVector3(camera.position.clone().sub(this.target));
+        this.rotateSpeed = 1.0;
+        this.zoomSpeed = 1.2;
+        this.dampingFactor = 0.1;
+        this.enableDamping = true;
+        this.autoRotate = false;
+        this.autoRotateSpeed = 1.0;
+        this.isMouseDown = false;
+        this.mouseButtons = { LEFT: 0, MIDDLE: 1, RIGHT: 2 };
+        this.pointerPosition = { x: 0, y: 0 };
+        this.lastPointerPosition = { x: 0, y: 0 };
+        this.update();
+        this.domElement.addEventListener('mousedown', this.onMouseDown.bind(this));
+        document.addEventListener('mousemove', this.onMouseMove.bind(this));
+        document.addEventListener('mouseup', this.onMouseUp.bind(this));
+        this.domElement.addEventListener('wheel', this.onMouseWheel.bind(this));
+        window.addEventListener('keydown', this.onKeyDown.bind(this));
+      }
+
+      onMouseDown(event) {
+        event.preventDefault();
+        this.isMouseDown = true;
+        this.lastPointerPosition.x = event.clientX;
+        this.lastPointerPosition.y = event.clientY;
+      }
+
+      onMouseMove(event) {
+        if (!this.isMouseDown) return;
+        const deltaX = event.clientX - this.lastPointerPosition.x;
+        const deltaY = event.clientY - this.lastPointerPosition.y;
+        this.lastPointerPosition.x = event.clientX;
+        this.lastPointerPosition.y = event.clientY;
+        this.spherical.theta -= deltaX * 0.01 * this.rotateSpeed;
+        this.spherical.phi -= deltaY * 0.01 * this.rotateSpeed;
+        this.spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, this.spherical.phi));
+        this.spherical.makeSafe();
+      }
+
+      onMouseUp() {
+        this.isMouseDown = false;
+      }
+
+      onMouseWheel(event) {
+        event.preventDefault();
+        if (event.deltaY > 0) {
+          this.dollyOut();
+        } else {
+          this.dollyIn();
+        }
+      }
+
+      onKeyDown(event) {
+        switch (event.code) {
+          case 'KeyW':
+            this.spherical.phi = Math.max(0.1, this.spherical.phi - 0.1);
+            break;
+          case 'KeyS':
+            this.spherical.phi = Math.min(Math.PI - 0.1, this.spherical.phi + 0.1);
+            break;
+          case 'KeyA':
+            this.spherical.theta += 0.1;
+            break;
+          case 'KeyD':
+            this.spherical.theta -= 0.1;
+            break;
+          case 'KeyQ':
+            this.dollyIn();
+            break;
+          case 'KeyE':
+            this.dollyOut();
+            break;
+        }
+        this.spherical.makeSafe();
+      }
+
+      dollyIn() {
+        this.spherical.radius /= this.zoomSpeed;
+        this.spherical.radius = Math.max(1, this.spherical.radius);
+      }
+
+      dollyOut() {
+        this.spherical.radius *= this.zoomSpeed;
+        this.spherical.radius = Math.min(100, this.spherical.radius);
+      }
+
+      update() {
+        if (this.autoRotate) {
+          this.spherical.theta -= 0.01 * this.autoRotateSpeed;
+        }
+        const offset = new THREE.Vector3();
+        offset.setFromSpherical(this.spherical);
+        offset.add(this.target);
+        this.camera.position.copy(offset);
+        this.camera.lookAt(this.target);
+        return false;
+      }
+    }
+
+    window.addEventListener('load', () => {
+      new StellarLifecycleSimulation();
+    });
+  </script>
 </body>
 </html>

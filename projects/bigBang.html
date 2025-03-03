@@ -2,193 +2,733 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Big Bang Simulation - Three.js</title>
+  <title>Cosmic Big Bang Simulation - Interactive 3D Experience</title>
   <style>
-    body { margin: 0; overflow: hidden; background: #000; }
-    #controls {
+    /* Global styles */
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: linear-gradient(135deg, #121212, #1d2733);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #ccc;
+    }
+    /* Control Panel Container with muted purple-blue-black gradient */
+    #controlPanel {
       position: absolute;
       top: 20px;
       left: 20px;
+      z-index: 20;
+      background: linear-gradient(135deg, #3a2d52, #2d3a5a, #121212);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+      max-width: 350px;
+      overflow-y: auto;
+      max-height: 90vh;
+    }
+    #controlPanel h2 {
+      margin-top: 0;
+      font-size: 20px;
+      text-align: center;
+      color: #d1b3ff;
+      border-bottom: 1px solid #4d3a66;
+      padding-bottom: 10px;
+    }
+    #controlPanel .section {
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #4d3a66;
+    }
+    #controlPanel h3 {
+      font-size: 16px;
+      margin-bottom: 5px;
+      color: #c2c2ff;
+    }
+    /* Label styling with info icon */
+    #controlPanel label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 5px;
+      color: #b0b0d1;
+    }
+    /* Info icon and tooltip styling */
+    .info-icon {
+      display: inline-block;
+      margin-left: 5px;
+      color: #aaa;
+      background: #222;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      text-align: center;
+      line-height: 16px;
+      font-size: 12px;
+      cursor: pointer;
+      position: relative;
+    }
+    .info-icon .tooltip {
+      display: none;
+      position: absolute;
+      top: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(20,20,20,0.9);
+      border: 1px solid #4d3a66;
+      color: #ccc;
+      padding: 5px 10px;
+      border-radius: 5px;
+      max-width: 300px;
+      white-space: normal;
+      word-wrap: break-word;
+      z-index: 30;
+      font-size: 12px;
+    }
+    .info-icon:hover .tooltip {
+      display: block;
+    }
+    /* Input styling */
+    #controlPanel input[type="range"],
+    #controlPanel input[type="number"],
+    #controlPanel input[type="color"] {
+      width: 100%;
+      margin-bottom: 8px;
+      background: #222;
+      border: 1px solid #4d3a66;
+      border-radius: 5px;
+      -webkit-appearance: none;
+    }
+    /* Slider thumb styling - softer */
+    #controlPanel input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      background: #4d3a66;
+      border: 1px solid #d1b3ff;
+      border-radius: 50%;
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+    }
+    #controlPanel input[type="range"]::-moz-range-thumb {
+      background: #4d3a66;
+      border: 1px solid #d1b3ff;
+      border-radius: 50%;
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+    }
+    /* Button styling */
+    #controlPanel button {
+      font-size: 14px;
+      padding: 8px 12px;
+      margin: 5px 2px;
+      background: #4d3a66;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: #eee;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    }
+    #controlPanel button:hover {
+      background: #5c4a7a;
+    }
+    /* Fallback simple buttons at bottom left */
+    #controls {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
       z-index: 10;
     }
-    button {
+    #controls button {
       font-size: 16px;
       padding: 10px 20px;
       margin-right: 10px;
-      background: #fff;
+      background: #4d3a66;
       border: none;
       border-radius: 4px;
       cursor: pointer;
+      color: #eee;
+    }
+    #controls button:hover {
+      background: #5c4a7a;
+    }
+    /* Shift the simulation canvas to the right so the explosion is centered in the visible area */
+    canvas {
+      margin-left: 370px;
     }
   </style>
 </head>
 <body>
-  <div id="controls">
-    <button id="startButton">Start</button>
-    <button id="resetButton">Reset</button>
+  <!-- Detailed Control Panel -->
+  <div id="controlPanel">
+    <h2>Cosmic Controls</h2>
+    <div class="section">
+      <h3>Simulation Timing</h3>
+      <label for="simSpeed">
+        Simulation Speed (×): <span id="simSpeedVal">1</span>
+        <span class="info-icon">ℹ
+          <span class="tooltip">Overall speed multiplier for the simulation.</span>
+        </span>
+      </label>
+      <input type="range" id="simSpeed" min="0.1" max="10" step="0.1" value="1" />
+      
+      <label for="explosionDelay">
+        Explosion Delay (sec): <span id="explosionDelayVal">0</span>
+        <span class="info-icon">ℹ
+          <span class="tooltip">Time (in seconds) before the explosion is triggered after clicking "Start Explosion".</span>
+        </span>
+      </label>
+      <input type="range" id="explosionDelay" min="0" max="5" step="0.1" value="0" />
+
+      <label for="simLength">
+        Simulation Duration (sec): <span id="simLengthVal">10</span>
+        <span class="info-icon">ℹ
+          <span class="tooltip">Total duration of the simulation before auto-pausing.</span>
+        </span>
+      </label>
+      <input type="range" id="simLength" min="5" max="30" step="1" value="10" />
+    </div>
+    <div class="section">
+      <h3>Stellar Parameters</h3>
+      <label for="stellarMass">
+        Stellar Mass (M☉): <span id="stellarMassVal">1</span>
+        <span class="info-icon">ℹ
+          <span class="tooltip">Mass of the star in solar masses; affects explosion force.</span>
+        </span>
+      </label>
+      <input type="range" id="stellarMass" min="0.1" max="50" step="0.1" value="1" />
+      
+      <label for="forceMultiplier">
+        Explosion Force Multiplier: <span id="forceMultiplierVal">2</span>
+        <span class="info-icon">ℹ
+          <span class="tooltip">Multiplier to adjust explosion force based on stellar mass.</span>
+        </span>
+      </label>
+      <input type="range" id="forceMultiplier" min="0.5" max="5" step="0.1" value="2" />
+
+      <label for="slowdownFactor">
+        Slowdown Factor: <span id="slowdownFactorVal">0.995</span>
+        <span class="info-icon">ℹ
+          <span class="tooltip">Rate at which particle velocities slow down over time.</span>
+        </span>
+      </label>
+      <input type="range" id="slowdownFactor" min="0.90" max="1" step="0.001" value="0.995" />
+    </div>
+    <div class="section">
+      <h3>Particle Settings</h3>
+      <label for="particleCount">
+        Particle Count: <span id="particleCountVal">2000</span>
+        <span class="info-icon">ℹ
+          <span class="tooltip">Total number of particles in the simulation.</span>
+        </span>
+      </label>
+      <input type="range" id="particleCount" min="500" max="10000" step="100" value="2000" />
+
+      <label for="particleSize">
+        Particle Size: <span id="particleSizeVal">4</span>
+        <span class="info-icon">ℹ
+          <span class="tooltip">Size of each particle.</span>
+        </span>
+      </label>
+      <input type="range" id="particleSize" min="1" max="10" step="0.5" value="4" />
+
+      <label for="particleOpacity">
+        Particle Opacity: <span id="particleOpacityVal">0.9</span>
+        <span class="info-icon">ℹ
+          <span class="tooltip">Opacity of the particles.</span>
+        </span>
+      </label>
+      <input type="range" id="particleOpacity" min="0" max="1" step="0.05" value="0.9" />
+
+      <label for="hueSpeed">
+        Hue Rotation Speed: <span id="hueSpeedVal">0.2</span>
+        <span class="info-icon">ℹ
+          <span class="tooltip">How quickly particle colors cycle through hues.</span>
+        </span>
+      </label>
+      <input type="range" id="hueSpeed" min="0" max="2" step="0.1" value="0.2" />
+    </div>
+    <div class="section">
+      <h3>Camera & Orbit</h3>
+      <label>
+        <input type="checkbox" id="rotateCamera" checked />
+        Rotate Camera
+        <span class="info-icon">ℹ
+          <span class="tooltip">When checked, the camera will orbit around the explosion center during the simulation.</span>
+        </span>
+      </label>
+      <label for="zoomSpeed">
+        Camera Zoom Speed: <span id="zoomSpeedVal">50</span>
+        <span class="info-icon">ℹ
+          <span class="tooltip">How fast the camera zooms in over time.</span>
+        </span>
+      </label>
+      <input type="range" id="zoomSpeed" min="0" max="100" step="1" value="50" />
+      <label for="initialCamDist">
+        Initial Camera Distance: <span id="initialCamDistVal">500</span>
+        <span class="info-icon">ℹ
+          <span class="tooltip">Starting distance of the camera from the explosion center.</span>
+        </span>
+      </label>
+      <input type="range" id="initialCamDist" min="100" max="1000" step="10" value="500" />
+      <label for="minCamDist">
+        Min Camera Distance: <span id="minCamDistVal">150</span>
+        <span class="info-icon">ℹ
+          <span class="tooltip">Closest distance the camera is allowed to approach the explosion.</span>
+        </span>
+      </label>
+      <input type="range" id="minCamDist" min="50" max="300" step="5" value="150" />
+      <button id="resetCamera">Reset Camera</button>
+    </div>
+    <div class="section">
+      <h3>Visual Extras</h3>
+      <label for="bgColor">
+        Background Color:
+        <span class="info-icon">ℹ
+          <span class="tooltip">Sets the background color of the simulation.</span>
+        </span>
+      </label>
+      <input type="color" id="bgColor" value="#000000" />
+      <label for="gravity">
+        Gravity (Y-axis): <span id="gravityVal">0</span>
+        <span class="info-icon">ℹ
+          <span class="tooltip">Gravity applied along the Y-axis, affecting particle trajectories.</span>
+        </span>
+      </label>
+      <input type="range" id="gravity" min="-0.1" max="0.1" step="0.005" value="0" />
+      <label>
+        <input type="checkbox" id="showTrails" />
+        Show Particle Trails
+        <span class="info-icon">ℹ
+          <span class="tooltip">Toggle to display fading trails behind particles.</span>
+        </span>
+      </label>
+      <div style="margin-top:8px;">
+        <button id="randomizeColors">Randomize Colors</button>
+        <span class="info-icon">ℹ
+          <span class="tooltip">Randomizes the colors of all particles.</span>
+        </span>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Simulation Actions</h3>
+      <button id="startButton">Start Explosion</button>
+      <button id="pauseButton">Pause</button>
+      <button id="resumeButton">Resume</button>
+      <button id="resetButton">Reset Simulation</button>
+      <button id="resetControls">Reset Controls</button>
+    </div>
   </div>
-
-  <!-- Include three.js from CDN -->
+  <!-- Fallback simple buttons at bottom left -->
+  <div id="controls">
+    <button id="simpleStart">Start</button>
+    <button id="simpleReset">Reset</button>
+  </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
   <script>
-    let scene, camera, renderer, particles, particlePositions, particleColors, velocities;
-    const particleCount = 2000;
-    let isExploded = false;
-    let explosionStartTime = null;
-    let particleHues = [];
+    // Global simulation variables
+    let simulationSpeed = 1;
+    let explosionDelay = 0;
+    let simDuration = 10;
+    let stellarMass = 1;
+    let forceMultiplier = 2;
+    let slowdownFactor = 0.995;
+    let hueSpeed = 0.2;
+    let zoomSpeed = 50;
+    let initialCamDist = 500;
+    let minCamDist = 150;
+    let particleCount = 2000;
+    let particleSize = 4;
+    let particleOpacity = 0.9;
+    let gravityVal = 0;
+    let showTrails = false;
 
-    // Simulation parameters
-    const explosionForce = 2;    // Initial speed of particles
-    const slowdown = 0.995;      // Gradual slowdown factor
-    const hueSpeed = 0.2;        // Speed at which particle hues rotate
-    const orbitSpeed = 0.5;      // Radians per second for camera rotation
-    const initialCameraDistance = 500;
-    const zoomSpeed = 50;        // Units per second the camera zooms in
-    const minCameraDistance = 150;
+    let scene, camera, renderer, particles, particleGeometry, velocities;
+    let particlePositions, particleColors, particleHues = [];
+    let explosionStartTime = null;
+    let isExploded = false;
+    let simulationPaused = false;
+    let lastTime;
+    let explosionTimeout = null;
+    let isRotating = true; // Default to checked
+    const orbitSpeed = 0.5; // Fixed orbit speed when rotation is enabled
+    const orbitCenter = new THREE.Vector3(175, 0, 0); // Center of explosion and rotation
+
+    // Trail variables
+    let trailPoints = [];
+    let lastTrailTime = 0;
+    let trailMesh = null;
 
     init();
     animate();
 
     function init() {
-      // Create scene and set background
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x000000);
-
-      // Set up camera
+      scene.background = new THREE.Color(document.getElementById('bgColor').value);
       camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
-      camera.position.z = initialCameraDistance;
+      camera.position.set(orbitCenter.x, orbitCenter.y, initialCamDist);
+      camera.lookAt(orbitCenter);
 
-      // Set up renderer
       renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
       document.body.appendChild(renderer.domElement);
+      renderer.domElement.style.marginLeft = "370px";
 
-      // Create particle geometry, positions, colors, and velocities
-      const geometry = new THREE.BufferGeometry();
+      createParticles();
+
+      // Event listeners for controls
+      document.getElementById("simSpeed").addEventListener("input", (e) => {
+        simulationSpeed = parseFloat(e.target.value);
+        document.getElementById("simSpeedVal").textContent = simulationSpeed;
+      });
+      document.getElementById("explosionDelay").addEventListener("input", (e) => {
+        explosionDelay = parseFloat(e.target.value);
+        document.getElementById("explosionDelayVal").textContent = explosionDelay;
+      });
+      document.getElementById("simLength").addEventListener("input", (e) => {
+        simDuration = parseFloat(e.target.value);
+        document.getElementById("simLengthVal").textContent = simDuration;
+      });
+      document.getElementById("stellarMass").addEventListener("input", (e) => {
+        stellarMass = parseFloat(e.target.value);
+        document.getElementById("stellarMassVal").textContent = stellarMass;
+      });
+      document.getElementById("forceMultiplier").addEventListener("input", (e) => {
+        forceMultiplier = parseFloat(e.target.value);
+        document.getElementById("forceMultiplierVal").textContent = forceMultiplier;
+      });
+      document.getElementById("slowdownFactor").addEventListener("input", (e) => {
+        slowdownFactor = parseFloat(e.target.value);
+        document.getElementById("slowdownFactorVal").textContent = slowdownFactor;
+      });
+      document.getElementById("hueSpeed").addEventListener("input", (e) => {
+        hueSpeed = parseFloat(e.target.value);
+        document.getElementById("hueSpeedVal").textContent = hueSpeed;
+      });
+      document.getElementById("zoomSpeed").addEventListener("input", (e) => {
+        zoomSpeed = parseFloat(e.target.value);
+        document.getElementById("zoomSpeedVal").textContent = zoomSpeed;
+      });
+      document.getElementById("initialCamDist").addEventListener("input", (e) => {
+        initialCamDist = parseFloat(e.target.value);
+        document.getElementById("initialCamDistVal").textContent = initialCamDist;
+        camera.position.z = initialCamDist;
+      });
+      document.getElementById("minCamDist").addEventListener("input", (e) => {
+        minCamDist = parseFloat(e.target.value);
+        document.getElementById("minCamDistVal").textContent = minCamDist;
+      });
+      document.getElementById("particleCount").addEventListener("input", (e) => {
+        particleCount = parseInt(e.target.value);
+        document.getElementById("particleCountVal").textContent = particleCount;
+        recreateParticles();
+      });
+      document.getElementById("particleSize").addEventListener("input", (e) => {
+        particleSize = parseFloat(e.target.value);
+        document.getElementById("particleSizeVal").textContent = particleSize;
+        updateParticleMaterial();
+      });
+      document.getElementById("particleOpacity").addEventListener("input", (e) => {
+        particleOpacity = parseFloat(e.target.value);
+        document.getElementById("particleOpacityVal").textContent = particleOpacity;
+        updateParticleMaterial();
+      });
+      document.getElementById("bgColor").addEventListener("input", (e) => {
+        scene.background = new THREE.Color(e.target.value);
+      });
+      document.getElementById("gravity").addEventListener("input", (e) => {
+        gravityVal = parseFloat(e.target.value);
+        document.getElementById("gravityVal").textContent = gravityVal;
+      });
+      document.getElementById("showTrails").addEventListener("change", (e) => {
+        showTrails = e.target.checked;
+      });
+      document.getElementById("rotateCamera").addEventListener("change", (e) => {
+        isRotating = e.target.checked;
+      });
+      document.getElementById("resetCamera").addEventListener("click", resetCamera);
+      document.getElementById("randomizeColors").addEventListener("click", randomizeColors);
+      document.getElementById("resetControls").addEventListener("click", resetControls);
+      document.getElementById("startButton").addEventListener("click", () => {
+        if (isExploded) {
+          resetSimulation();
+        }
+        startSimulation();
+      });
+      document.getElementById("pauseButton").addEventListener("click", pauseSimulation);
+      document.getElementById("resumeButton").addEventListener("click", resumeSimulation);
+      document.getElementById("resetButton").addEventListener("click", resetSimulation);
+      document.getElementById("simpleStart").addEventListener("click", () => {
+        if (isExploded) {
+          resetSimulation();
+        }
+        startSimulation();
+      });
+      document.getElementById("simpleReset").addEventListener("click", resetSimulation);
+      window.addEventListener('resize', onWindowResize, false);
+    }
+
+    function createParticles() {
+      particleGeometry = new THREE.BufferGeometry();
       particlePositions = new Float32Array(particleCount * 3);
       particleColors = new Float32Array(particleCount * 3);
       velocities = [];
-      
+      particleHues = [];
       for (let i = 0; i < particleCount; i++) {
-        // Start all particles at the center (0,0,0)
-        particlePositions[i * 3]     = 0;
-        particlePositions[i * 3 + 1] = 0;
-        particlePositions[i * 3 + 2] = 0;
+        particlePositions[i * 3] = orbitCenter.x;     // Center at (175, 0, 0)
+        particlePositions[i * 3 + 1] = orbitCenter.y;
+        particlePositions[i * 3 + 2] = orbitCenter.z;
         velocities.push(new THREE.Vector3(0, 0, 0));
-        // Assign each particle a random hue (0 to 1)
         let hue = Math.random();
         particleHues.push(hue);
         let color = new THREE.Color();
         color.setHSL(hue, 1, 0.5);
-        particleColors[i * 3]     = color.r;
+        particleColors[i * 3] = color.r;
         particleColors[i * 3 + 1] = color.g;
         particleColors[i * 3 + 2] = color.b;
       }
-      geometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-      geometry.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
-
-      // Create a PointsMaterial that uses vertex colors for a colorful effect
-      const material = new THREE.PointsMaterial({
-        size: 4,
+      particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+      particleGeometry.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
+      let material = new THREE.PointsMaterial({
+        size: particleSize,
         sizeAttenuation: true,
         transparent: true,
-        opacity: 0.9,
-        vertexColors: true,
+        opacity: particleOpacity,
+        vertexColors: true
       });
-
-      particles = new THREE.Points(geometry, material);
+      particles = new THREE.Points(particleGeometry, material);
       scene.add(particles);
-
-      // Set up UI controls
-      document.getElementById("startButton").addEventListener("click", startSimulation);
-      document.getElementById("resetButton").addEventListener("click", resetSimulation);
-      window.addEventListener('resize', onWindowResize, false);
     }
 
-    // When Start is clicked, assign random velocity vectors to each particle
-    function startSimulation() {
-      if (!isExploded) {
-        isExploded = true;
-        explosionStartTime = Date.now();
-        for (let i = 0; i < particleCount; i++) {
-          // Random direction using spherical coordinates
-          const theta = Math.random() * Math.PI * 2;
-          const phi = Math.acos(2 * Math.random() - 1);
-          const x = Math.sin(phi) * Math.cos(theta);
-          const y = Math.sin(phi) * Math.sin(theta);
-          const z = Math.cos(phi);
-          velocities[i].set(x, y, z).multiplyScalar(explosionForce * (0.5 + Math.random()));
-        }
+    function updateParticleMaterial() {
+      if (particles && particles.material) {
+        particles.material.size = particleSize;
+        particles.material.opacity = particleOpacity;
       }
     }
 
-    // Reset simulation: particles return to center, velocities are zero, and camera resets
-    function resetSimulation() {
-      isExploded = false;
-      explosionStartTime = null;
-      camera.position.set(0, 0, initialCameraDistance);
-      camera.lookAt(scene.position);
+    function recreateParticles() {
+      if (particles) {
+        scene.remove(particles);
+      }
+      createParticles();
+    }
+
+    function resetCamera() {
+      camera.position.set(orbitCenter.x, orbitCenter.y, initialCamDist);
+      camera.lookAt(orbitCenter);
+    }
+
+    function randomizeColors() {
       for (let i = 0; i < particleCount; i++) {
-        particlePositions[i * 3]     = 0;
-        particlePositions[i * 3 + 1] = 0;
-        particlePositions[i * 3 + 2] = 0;
-        velocities[i].set(0, 0, 0);
-        // Reset particle hue and color
         let hue = Math.random();
         particleHues[i] = hue;
         let color = new THREE.Color();
         color.setHSL(hue, 1, 0.5);
-        particleColors[i * 3]     = color.r;
+        particleColors[i * 3] = color.r;
+        particleColors[i * 3 + 1] = color.g;
+        particleColors[i * 3 + 2] = color.b;
+      }
+      particles.geometry.attributes.color.needsUpdate = true;
+    }
+
+    function resetControls() {
+      document.getElementById("simSpeed").value = 1;
+      simulationSpeed = 1;
+      document.getElementById("simSpeedVal").textContent = "1";
+      document.getElementById("explosionDelay").value = 0;
+      explosionDelay = 0;
+      document.getElementById("explosionDelayVal").textContent = "0";
+      document.getElementById("simLength").value = 10;
+      simDuration = 10;
+      document.getElementById("simLengthVal").textContent = "10";
+      document.getElementById("stellarMass").value = 1;
+      stellarMass = 1;
+      document.getElementById("stellarMassVal").textContent = "1";
+      document.getElementById("forceMultiplier").value = 2;
+      forceMultiplier = 2;
+      document.getElementById("forceMultiplierVal").textContent = "2";
+      document.getElementById("slowdownFactor").value = 0.995;
+      slowdownFactor = 0.995;
+      document.getElementById("slowdownFactorVal").textContent = "0.995";
+      document.getElementById("hueSpeed").value = 0.2;
+      hueSpeed = 0.2;
+      document.getElementById("hueSpeedVal").textContent = "0.2";
+      document.getElementById("zoomSpeed").value = 50;
+      zoomSpeed = 50;
+      document.getElementById("zoomSpeedVal").textContent = "50";
+      document.getElementById("initialCamDist").value = 500;
+      initialCamDist = 500;
+      document.getElementById("initialCamDistVal").textContent = "500";
+      document.getElementById("minCamDist").value = 150;
+      minCamDist = 150;
+      document.getElementById("minCamDistVal").textContent = "150";
+      document.getElementById("particleCount").value = 2000;
+      particleCount = 2000;
+      document.getElementById("particleCountVal").textContent = "2000";
+      document.getElementById("particleSize").value = 4;
+      particleSize = 4;
+      document.getElementById("particleSizeVal").textContent = "4";
+      document.getElementById("particleOpacity").value = 0.9;
+      particleOpacity = 0.9;
+      document.getElementById("particleOpacityVal").textContent = "0.9";
+      document.getElementById("gravity").value = 0;
+      gravityVal = 0;
+      document.getElementById("gravityVal").textContent = "0";
+      document.getElementById("bgColor").value = "#000000";
+      scene.background = new THREE.Color("#000000");
+      document.getElementById("showTrails").checked = false;
+      showTrails = false;
+      recreateParticles();
+      resetCamera();
+      resetSimulation();
+    }
+
+    function updateTrails(now) {
+      if (now - lastTrailTime > 100) {
+        for (let i = 0; i < particleCount; i += 10) {
+          trailPoints.push({
+            x: particlePositions[i * 3],
+            y: particlePositions[i * 3 + 1],
+            z: particlePositions[i * 3 + 2],
+            time: now
+          });
+        }
+        lastTrailTime = now;
+      }
+      trailPoints = trailPoints.filter(pt => now - pt.time <= 1500);
+      const trailArray = new Float32Array(trailPoints.length * 3);
+      for (let i = 0; i < trailPoints.length; i++) {
+        trailArray[i * 3] = trailPoints[i].x;
+        trailArray[i * 3 + 1] = trailPoints[i].y;
+        trailArray[i * 3 + 2] = trailPoints[i].z;
+      }
+      if (trailMesh) {
+        trailMesh.geometry.setAttribute('position', new THREE.BufferAttribute(trailArray, 3));
+        trailMesh.geometry.attributes.position.needsUpdate = true;
+      } else {
+        const trailGeometry = new THREE.BufferGeometry();
+        trailGeometry.setAttribute('position', new THREE.BufferAttribute(trailArray, 3));
+        const trailMaterial = new THREE.PointsMaterial({ size: 2, color: 0xffffff, opacity: 0.5, transparent: true });
+        trailMesh = new THREE.Points(trailGeometry, trailMaterial);
+        scene.add(trailMesh);
+      }
+    }
+
+    function startSimulation() {
+      if (explosionTimeout) {
+        clearTimeout(explosionTimeout);
+      }
+      explosionTimeout = setTimeout(() => {
+        if (!isExploded) {
+          isExploded = true;
+          explosionStartTime = Date.now();
+          const explosionForce = stellarMass * forceMultiplier;
+          for (let i = 0; i < particleCount; i++) {
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            const x = Math.sin(phi) * Math.cos(theta);
+            const y = Math.sin(phi) * Math.sin(theta);
+            const z = Math.cos(phi);
+            velocities[i].set(x, y, z).multiplyScalar(explosionForce * (0.5 + Math.random()));
+          }
+        }
+      }, explosionDelay * 1000);
+    }
+
+    function pauseSimulation() {
+      simulationPaused = true;
+    }
+
+    function resumeSimulation() {
+      simulationPaused = false;
+    }
+
+    function resetSimulation() {
+      if (explosionTimeout) {
+        clearTimeout(explosionTimeout);
+        explosionTimeout = null;
+      }
+      isExploded = false;
+      simulationPaused = false;
+      explosionStartTime = null;
+      camera.position.set(orbitCenter.x, orbitCenter.y, initialCamDist);
+      camera.lookAt(orbitCenter);
+      for (let i = 0; i < particleCount; i++) {
+        particlePositions[i * 3] = orbitCenter.x;     // Reset to (175, 0, 0)
+        particlePositions[i * 3 + 1] = orbitCenter.y;
+        particlePositions[i * 3 + 2] = orbitCenter.z;
+        velocities[i].set(0, 0, 0);
+        let hue = Math.random();
+        particleHues[i] = hue;
+        let color = new THREE.Color();
+        color.setHSL(hue, 1, 0.5);
+        particleColors[i * 3] = color.r;
         particleColors[i * 3 + 1] = color.g;
         particleColors[i * 3 + 2] = color.b;
       }
       particles.geometry.attributes.position.needsUpdate = true;
       particles.geometry.attributes.color.needsUpdate = true;
+      trailPoints = [];
+      if (trailMesh) {
+        scene.remove(trailMesh);
+        trailMesh = null;
+      }
     }
 
-    // Animate the scene: update particle positions, colors, and camera motion
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
     function animate() {
       requestAnimationFrame(animate);
+      let now = Date.now();
+      let deltaTime = (now - (lastTime || now)) / 1000;
+      lastTime = now;
 
-      if (isExploded && explosionStartTime !== null) {
-        const elapsed = (Date.now() - explosionStartTime) / 1000; // seconds elapsed
-
-        // Rotate and zoom the camera around the center
-        const orbitAngle = elapsed * orbitSpeed;
-        let cameraDistance = initialCameraDistance - zoomSpeed * elapsed;
-        cameraDistance = Math.max(cameraDistance, minCameraDistance);
-        camera.position.x = cameraDistance * Math.cos(orbitAngle);
-        camera.position.z = cameraDistance * Math.sin(orbitAngle);
-        camera.position.y = 100 * Math.sin(orbitAngle * 0.5); // slight vertical movement
-        camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-        // Update particles: move them outward and update their colors
+      if (isExploded && !simulationPaused && explosionStartTime) {
+        const elapsed = (now - explosionStartTime) / 1000;
+        if (elapsed > simDuration) {
+          simulationPaused = true;
+        }
+        let camDist = initialCamDist - zoomSpeed * elapsed;
+        camDist = Math.max(camDist, minCamDist);
+        if (isRotating) {
+          let orbitAngle = elapsed * orbitSpeed;
+          camera.position.x = orbitCenter.x + camDist * Math.cos(orbitAngle);
+          camera.position.z = orbitCenter.z + camDist * Math.sin(orbitAngle);
+          camera.position.y = 100 * Math.sin(orbitAngle * 0.5);
+        } else {
+          camera.position.x = orbitCenter.x + camDist;
+          camera.position.y = orbitCenter.y;
+          camera.position.z = orbitCenter.z;
+        }
+        camera.lookAt(orbitCenter);
         for (let i = 0; i < particleCount; i++) {
-          particlePositions[i * 3]     += velocities[i].x;
-          particlePositions[i * 3 + 1] += velocities[i].y;
-          particlePositions[i * 3 + 2] += velocities[i].z;
-          velocities[i].multiplyScalar(slowdown);
-
-          // Rotate hue over time
-          let hue = (particleHues[i] + elapsed * hueSpeed) % 1;
+          particlePositions[i * 3] += velocities[i].x * simulationSpeed;
+          particlePositions[i * 3 + 1] += velocities[i].y * simulationSpeed;
+          particlePositions[i * 3 + 2] += velocities[i].z * simulationSpeed;
+          velocities[i].y += gravityVal;
+          velocities[i].multiplyScalar(slowdownFactor);
+          let newHue = (particleHues[i] + elapsed * hueSpeed) % 1;
           let color = new THREE.Color();
-          color.setHSL(hue, 1, 0.5);
-          particleColors[i * 3]     = color.r;
+          color.setHSL(newHue, 1, 0.5);
+          particleColors[i * 3] = color.r;
           particleColors[i * 3 + 1] = color.g;
           particleColors[i * 3 + 2] = color.b;
         }
         particles.geometry.attributes.position.needsUpdate = true;
         particles.geometry.attributes.color.needsUpdate = true;
+        if (showTrails) {
+          updateTrails(now);
+        } else if (trailMesh) {
+          scene.remove(trailMesh);
+          trailMesh = null;
+          trailPoints = [];
+        }
       }
-
       renderer.render(scene, camera);
-    }
-
-    // Update renderer and camera on window resize
-    function onWindowResize() {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
     }
   </script>
 </body>
