@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>3D Pickleball Simulation with Person-Held Paddle</title>
+  <style>
+    body { margin: 0; overflow: hidden; background-color: #000; }
+    #gui {
+      position: absolute; top: 20px; left: 20px; z-index: 100;
+      font-family: Arial, sans-serif; color: #fff;
+    }
+    #gui button {
+      font-size: 16px; padding: 10px 20px; margin-right: 10px;
+      background-color: #444; color: #fff; border: none; cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    #gui button:active { background-color: #888; }
+    #status { margin-top: 10px; font-size: 18px; }
+  </style>
+</head>
+<body>
+  <div id="gui">
+    <button id="startBtn">Start</button>
+    <button id="stopBtn">Stop</button>
+    <div id="status">Stopped</div>
+  </div>
+  <!-- Include Three.js from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    let scene, camera, renderer;
+    let ball;
+    // The paddleHolder represents the person's hand holding the paddle.
+    let paddleHolder;
+    // The paddleFaceGroup will be a child of paddleHolder and will swing about its left edge.
+    let paddleFaceGroup;
+    
+    let isRunning = false;
+    let startTime = 0;
+    const bouncePeriod = 2; // seconds for one full bounce cycle
+    const bounceHeight = 3;
+    const ballRadius = 0.2;
+    const paddleDefaultY = -1; // Y position for the person's hand
+    
+    // The hit window (normalized) during which the paddle face starts its swing.
+    const hitWindow = 0.25;
+    
+    // Neon colors for the ball.
+    const neonColors = [
+      0xff33ff, 0xff3399, 0x33ff33, 0x33ffff, 0xffff33, 0xff3333
+    ];
+    
+    // Easing function for a smooth swing.
+    function easeOutQuad(t) {
+      return t * (2 - t);
+    }
+    
+    function init() {
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x000000);
+      
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+      camera.position.set(0, 1, 7);
+      
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+      
+      // Lighting: ambient blue and directional purple.
+      const ambientLight = new THREE.AmbientLight(0x4040ff, 1);
+      scene.add(ambientLight);
+      const directionalLight = new THREE.DirectionalLight(0x800080, 1);
+      directionalLight.position.set(5, 10, 7.5);
+      scene.add(directionalLight);
+      
+      // Create the ball.
+      const ballGeometry = new THREE.SphereGeometry(ballRadius, 32, 32);
+      const ballMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        emissive: 0xffffff,
+        metalness: 0.5,
+        roughness: 0.1
+      });
+      ball = new THREE.Mesh(ballGeometry, ballMaterial);
+      // Position the ball so that it bounces on the center of the paddle face.
+      // The paddle face (see below) will extend rightward from the handle.
+      ball.position.set(0.75, paddleDefaultY + ballRadius, 0);
+      scene.add(ball);
+      
+      // Create the paddleHolder. This represents the person's hand.
+      paddleHolder = new THREE.Group();
+      paddleHolder.position.set(0, paddleDefaultY, 0);
+      scene.add(paddleHolder);
+      
+      // Create the paddle face as a separate group so we can set its pivot.
+      // We want the pivot (origin) at its left edge.
+      paddleFaceGroup = new THREE.Group();
+      // Create the paddle face mesh.
+      const paddleFaceGeometry = new THREE.BoxGeometry(1.5, 0.2, 0.5);
+      const paddleFaceMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0x800080,
+        metalness: 0.6,
+        roughness: 0.3
+      });
+      const paddleFaceMesh = new THREE.Mesh(paddleFaceGeometry, paddleFaceMaterial);
+      // Shift the mesh so that its left edge aligns with the group's origin.
+      // BoxGeometry is centered, so move it by half its width (1.5/2 = 0.75) to the right.
+      paddleFaceMesh.position.set(0.75, 0, 0);
+      paddleFaceGroup.add(paddleFaceMesh);
+      // Add the paddle face group to the holder.
+      // Its pivot (the left edge) is now at the same position as the person's hand.
+      paddleHolder.add(paddleFaceGroup);
+      
+      // Create the handle (which stays fixed, simulating a person holding it).
+      const handleLength = 0.8;
+      const handleRadius = 0.08;
+      const handleGeometry = new THREE.CylinderGeometry(handleRadius, handleRadius, handleLength, 16);
+      const handleMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0x222222,
+        metalness: 0.5,
+        roughness: 0.4
+      });
+      const handleMesh = new THREE.Mesh(handleGeometry, handleMaterial);
+      // Rotate so the cylinder is horizontal.
+      handleMesh.rotation.z = Math.PI / 2;
+      // Position the handle so that its right end touches the hand (origin).
+      handleMesh.position.set(-handleLength / 2, 0, 0);
+      paddleHolder.add(handleMesh);
+      
+      window.addEventListener('resize', onWindowResize, false);
+      document.getElementById('startBtn').addEventListener('click', startSimulation);
+      document.getElementById('stopBtn').addEventListener('click', stopSimulation);
+    }
+    
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+    
+    function startSimulation() {
+      if (!isRunning) {
+        isRunning = true;
+        startTime = performance.now() / 1000;
+        document.getElementById('status').textContent = "Running";
+        document.getElementById('startBtn').style.backgroundColor = "#00aa00";
+        document.getElementById('stopBtn').style.backgroundColor = "#444";
+      }
+    }
+    
+    function stopSimulation() {
+      if (isRunning) {
+        isRunning = false;
+        document.getElementById('status').textContent = "Stopped";
+        document.getElementById('stopBtn').style.backgroundColor = "#aa0000";
+        document.getElementById('startBtn').style.backgroundColor = "#444";
+      }
+    }
+    
+    function animate() {
+      requestAnimationFrame(animate);
+      
+      if (isRunning) {
+        const currentTime = performance.now() / 1000;
+        const elapsed = currentTime - startTime;
+        // Normalized bounce time in [0,1].
+        const t = (elapsed % bouncePeriod) / bouncePeriod;
+        // Use sine for a smooth bounce: ball goes from paddle level up to the peak and back.
+        const newY = paddleDefaultY + ballRadius + bounceHeight * Math.sin(t * Math.PI);
+        ball.position.y = newY;
+        
+        // Determine how close we are to impact (when the ball is near the paddle face).
+        // Use the minimum distance from the cycle boundaries.
+        const delta = Math.min(t, 1 - t);
+        if (delta < hitWindow) {
+          // localT increases as the ball nears the paddle.
+          let localT = (hitWindow - delta) / hitWindow;
+          let easedT = easeOutQuad(localT);
+          // Maximum rotation angle (in radians) for the paddle face swing.
+          const maxAngle = 0.35;
+          // Rotate the paddle face group (pivot at its left edge) so that the face swings upward.
+          // A positive rotation here lifts the right side.
+          paddleFaceGroup.rotation.z = maxAngle * easedT;
+          
+          // Change ball color on impact, but only once per hit.
+          if (!paddleFaceGroup.userData.hitTriggered) {
+            const randomColor = neonColors[Math.floor(Math.random() * neonColors.length)];
+            ball.material.color.setHex(randomColor);
+            ball.material.emissive.setHex(randomColor);
+            paddleFaceGroup.userData.hitTriggered = true;
+          }
+        } else {
+          // Reset the paddle face to its default (no rotation) when out of the hit window.
+          paddleFaceGroup.rotation.z = 0;
+          paddleFaceGroup.userData.hitTriggered = false;
+        }
+      } else {
+        // When stopped, ensure the paddle face is in its default state.
+        paddleFaceGroup.rotation.z = 0;
+      }
+      
+      renderer.render(scene, camera);
+    }
+    
+    init();
+    animate();
+  </script>
+</body>
+</html>
