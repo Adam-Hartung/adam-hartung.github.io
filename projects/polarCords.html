@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Polar Coordinate Simulator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #000000, #32174d, #191970);
+            color: #ffffff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .controls {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        canvas {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            cursor: move;
+            width: 100%;
+            height: auto;
+        }
+        input, select {
+            padding: 5px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+        .error {
+            color: red;
+            font-size: 0.9em;
+        }
+        .theme-select {
+            margin: 10px 0;
+        }
+        .toggle-controls {
+            background-color: #6200ea;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .full-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+        }
+        .exit-full-screen {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: #6200ea;
+            color: #ffffff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1001;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="controls" id="controls">
+            <h2>Polar Coordinate Simulator</h2>
+            <div>
+                <label>r = f(x) = </label>
+                <input type="text" id="rFunction" value="Math.cos(x)" placeholder="e.g., Math.cos(x)">
+            </div>
+            <div>
+                <label>θ = g(x) = </label>
+                <input type="text" id="thetaFunction" value="x" placeholder="e.g., x">
+            </div>
+            <div>
+                <label>x range: </label>
+                <input type="number" id="xMin" value="-10" step="0.1"> to
+                <input type="number" id="xMax" value="10" step="0.1">
+            </div>
+            <div>
+                <label>Point size: </label>
+                <input type="number" id="pointSize" value="2" min="1" max="10">
+            </div>
+            <div class="theme-select">
+                <label>Theme: </label>
+                <select id="theme">
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                    <option value="blue">Blue</option>
+                </select>
+            </div>
+            <button onclick="plot()">Plot</button>
+            <div id="error" class="error"></div>
+        </div>
+        <button class="toggle-controls" onclick="toggleControls()">Toggle Controls</button>
+        <canvas id="canvas"></canvas>
+        <button class="exit-full-screen" id="exitFullScreen" onclick="exitFullScreen()">Exit Full Screen</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let scale = 50;
+        let offsetX = 0;
+        let offsetY = 0;
+        let isDragging = false;
+        let lastX, lastY;
+        let animationFrameId = null;
+        let needsRedraw = false;
+        const pointBuffer = [];
+
+        // Set canvas size
+        function resizeCanvas() {
+            if (document.getElementById('controls').style.display === 'none') {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                canvas.classList.add('full-screen');
+                document.getElementById('exitFullScreen').style.display = 'block';
+            } else {
+                canvas.width = window.innerWidth * 0.8;
+                canvas.height = window.innerHeight * 0.6;
+                canvas.classList.remove('full-screen');
+                document.getElementById('exitFullScreen').style.display = 'none';
+            }
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Theme colors
+        const themes = {
+            light: { bg: '#ffffff', grid: '#e0e0e0', axis: '#666666', points: '#6200ea' },
+            dark: { bg: '#1e1e1e', grid: '#2e2e2e', axis: '#b0bec5', points: '#bb86fc' },
+            blue: { bg: '#1e1e1e', grid: '#2e2e2e', axis: '#1976d2', points: '#03dac6' }
+        };
+
+        function drawGrid() {
+            const theme = themes[document.getElementById('theme').value];
+            ctx.fillStyle = theme.bg;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const centerX = canvas.width / 2 + offsetX;
+            const centerY = canvas.height / 2 + offsetY;
+
+            // Draw grid circles
+            ctx.strokeStyle = theme.grid;
+            for (let r = scale; r < Math.max(canvas.width, canvas.height); r += scale) {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, r, 0, 2 * Math.PI);
+                ctx.stroke();
+            }
+
+            // Draw grid lines
+            for (let angle = 0; angle < 360; angle += 30) {
+                const rad = angle * Math.PI / 180;
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(
+                    centerX + Math.cos(rad) * Math.max(canvas.width, canvas.height),
+                    centerY + Math.sin(rad) * Math.max(canvas.width, canvas.height)
+                );
+                ctx.stroke();
+            }
+
+            // Draw axes
+            ctx.strokeStyle = theme.axis;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(canvas.width, centerY);
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, canvas.height);
+            ctx.stroke();
+            ctx.lineWidth = 1;
+        }
+
+        function plot() {
+            try {
+                const rFuncText = document.getElementById('rFunction').value;
+                const thetaFuncText = document.getElementById('thetaFunction').value;
+                const xMin = parseFloat(document.getElementById('xMin').value);
+                const xMax = parseFloat(document.getElementById('xMax').value);
+                const pointSize = parseFloat(document.getElementById('pointSize').value);
+                const theme = themes[document.getElementById('theme').value];
+
+                const rFunc = new Function('x', `return ${rFuncText}`);
+                const thetaFunc = new Function('x', `return ${thetaFuncText}`);
+
+                // Clear the point buffer
+                pointBuffer.length = 0;
+
+                // Calculate points
+                const resolution = Math.max(0.1, (xMax - xMin) / 1000); // Adaptive resolution
+                for (let x = xMin; x <= xMax; x += resolution) {
+                    const r = rFunc(x) * scale;
+                    const theta = -thetaFunc(x); // Invert the angle
+                    pointBuffer.push({
+                        x: r * Math.cos(theta),
+                        y: r * Math.sin(theta)
+                    });
+                }
+
+                // Request animation frame for rendering
+                if (!animationFrameId) {
+                    needsRedraw = true;
+                    animationFrameId = requestAnimationFrame(render);
+                }
+
+                document.getElementById('error').textContent = '';
+            } catch (error) {
+                document.getElementById('error').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        function render() {
+            animationFrameId = null;
+            if (!needsRedraw) return;
+            
+            needsRedraw = false;
+            
+            const theme = themes[document.getElementById('theme').value];
+            const pointSize = parseFloat(document.getElementById('pointSize').value);
+            const centerX = canvas.width / 2 + offsetX;
+            const centerY = canvas.height / 2 + offsetY;
+
+            drawGrid();
+
+            // Batch render points
+            ctx.fillStyle = theme.points;
+            ctx.beginPath();
+            for (const point of pointBuffer) {
+                const plotX = centerX + point.x;
+                const plotY = centerY + point.y;
+                ctx.moveTo(plotX, plotY);
+                ctx.arc(plotX, plotY, pointSize, 0, 2 * Math.PI);
+            }
+            ctx.fill();
+        }
+
+        // Add throttling for mouse events
+        function throttle(func, limit) {
+            let inThrottle;
+            return function(...args) {
+                if (!inThrottle) {
+                    func.apply(this, args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            }
+        }
+
+        // Update mouse move handler
+        canvas.addEventListener('mousemove', throttle((e) => {
+            if (isDragging) {
+                offsetX += e.clientX - lastX;
+                offsetY += e.clientY - lastY;
+                lastX = e.clientX;
+                lastY = e.clientY;
+                needsRedraw = true;
+                if (!animationFrameId) {
+                    animationFrameId = requestAnimationFrame(render);
+                }
+            }
+        }, 16)); // roughly 60fps
+
+        // Mouse events for panning
+        canvas.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            lastX = e.clientX;
+            lastY = e.clientY;
+        });
+
+        canvas.addEventListener('mouseup', () => isDragging = false);
+        canvas.addEventListener('mouseleave', () => isDragging = false);
+
+        // Mouse wheel for zooming
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            scale *= delta;
+            plot();
+        });
+
+        // Toggle controls visibility
+        function toggleControls() {
+            const controls = document.getElementById('controls');
+            if (controls.style.display === 'none') {
+                controls.style.display = 'block';
+            } else {
+                controls.style.display = 'none';
+            }
+            resizeCanvas();
+            plot();
+        }
+
+        // Exit full screen
+        function exitFullScreen() {
+            const controls = document.getElementById('controls');
+            controls.style.display = 'block';
+            resizeCanvas();
+            plot();
+        }
+
+        // Initial plot
+        plot();
+    </script>
+</body>
+</html>

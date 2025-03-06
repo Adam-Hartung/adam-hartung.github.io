@@ -6,158 +6,140 @@
   <style>
     /* Global styles */
     html {
-      background: linear-gradient(135deg, #121212, #1d2733);
-      height: 100%;
-      margin: 0;
-      padding: 0;
+        background: linear-gradient(135deg, #000000, #32174d, #191970);
+        height: 100%;
+        margin: 0;
+        padding: 0;
     }
     body {
-      margin: 0;
-      overflow: hidden;
-      background: transparent;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #ccc;
-      height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: transparent;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #ccc;
+        height: 100%;
     }
     /* Control Panel Container */
     #controlPanel {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      z-index: 20;
-      background: linear-gradient(135deg, #3a2d52, #2d3a5a, #121212);
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
-      max-width: 350px;
-      overflow-y: auto;
-      max-height: 90vh;
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 20;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+        max-width: 350px;
+        overflow-y: auto;
+        max-height: 90vh;
     }
     #controlPanel h2 {
-      margin-top: 0;
-      font-size: 20px;
-      text-align: center;
-      color: #d1b3ff;
-      border-bottom: 1px solid #4d3a66;
-      padding-bottom: 10px;
+        margin-top: 0;
+        font-size: 20px;
+        text-align: center;
+        color: #d1b3ff;
+        border-bottom: 1px solid #4d3a66;
+        padding-bottom: 10px;
     }
     #controlPanel .section {
-      margin-bottom: 15px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #4d3a66;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #4d3a66;
     }
     #controlPanel h3 {
-      font-size: 16px;
-      margin-bottom: 5px;
-      color: #c2c2ff;
+        font-size: 16px;
+        margin-bottom: 5px;
+        color: #c2c2ff;
     }
     #controlPanel label {
-      display: block;
-      font-size: 14px;
-      margin-bottom: 5px;
-      color: #b0b0d1;
+        display: block;
+        font-size: 14px;
+        margin-bottom: 5px;
+        color: #b0b0d1;
     }
     .info-icon {
-      display: inline-block;
-      margin-left: 5px;
-      color: #aaa;
-      background: #222;
-      border-radius: 50%;
-      width: 16px;
-      height: 16px;
-      text-align: center;
-      line-height: 16px;
-      font-size: 12px;
-      cursor: pointer;
-      position: relative;
+        display: inline-block;
+        margin-left: 5px;
+        color: #aaa;
+        background: #222;
+        border-radius: 50%;
+        width: 16px;
+        height: 16px;
+        text-align: center;
+        line-height: 16px;
+        font-size: 12px;
+        cursor: pointer;
+        position: relative;
     }
     .info-icon .tooltip {
-      display: none;
-      position: absolute;
-      top: 22px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(20,20,20,0.9);
-      border: 1px solid #4d3a66;
-      color: #ccc;
-      padding: 5px 10px;
-      border-radius: 5px;
-      max-width: 300px;
-      white-space: normal;
-      word-wrap: break-word;
-      z-index: 30;
-      font-size: 12px;
+        display: none;
+        position: absolute;
+        top: 22px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(20,20,20,0.9);
+        border: 1px solid #4d3a66;
+        color: #ccc;
+        padding: 5px 10px;
+        border-radius: 5px;
+        max-width: 300px;
+        white-space: normal;
+        word-wrap: break-word;
+        z-index: 30;
+        font-size: 12px;
     }
     .info-icon:hover .tooltip {
-      display: block;
+        display: block;
     }
     #controlPanel input[type="range"],
     #controlPanel input[type="number"],
     #controlPanel input[type="color"] {
-      width: 100%;
-      margin-bottom: 8px;
-      background: #222;
-      border: 1px solid #4d3a66;
-      border-radius: 5px;
-      -webkit-appearance: none;
+        width: 100%;
+        margin-bottom: 8px;
+        background: #222;
+        border: 1px solid #4d3a66;
+        border-radius: 5px;
+        -webkit-appearance: none;
     }
     #controlPanel input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      background: #4d3a66;
-      border: 1px solid #d1b3ff;
-      border-radius: 50%;
-      width: 14px;
-      height: 14px;
-      cursor: pointer;
+        -webkit-appearance: none;
+        background: #4d3a66;
+        border: 1px solid #d1b3ff;
+        border-radius: 50%;
+        width: 14px;
+        height: 14px;
+        cursor: pointer;
     }
     #controlPanel input[type="range"]::-moz-range-thumb {
-      background: #4d3a66;
-      border: 1px solid #d1b3ff;
-      border-radius: 50%;
-      width: 14px;
-      height: 14px;
-      cursor: pointer;
+        background: #4d3a66;
+        border: 1px solid #d1b3ff;
+        border-radius: 50%;
+        width: 14px;
+        height: 14px;
+        cursor: pointer;
     }
     #controlPanel button {
-      font-size: 14px;
-      padding: 8px 12px;
-      margin: 5px 2px;
-      background: #4d3a66;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      color: #eee;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+        font-size: 14px;
+        padding: 8px 12px;
+        margin: 5px 2px;
+        background: #4d3a66;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        color: #eee;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
     }
     #controlPanel button:hover {
-      background: #5c4a7a;
-    }
-    #controls {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
-      z-index: 10;
-    }
-    #controls button {
-      font-size: 16px;
-      padding: 10px 20px;
-      margin-right: 10px;
-      background: #4d3a66;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      color: #eee;
-    }
-    #controls button:hover {
-      background: #5c4a7a;
+        background: #5c4a7a;
     }
     #canvasWrapper {
-      position: absolute;
-      left: 370px;
-      top: 0;
-      width: calc(100% - 370px);
-      height: 100%;
-      background: linear-gradient(135deg, #121212, #1d2733);
+        position: absolute;
+        left: 370px;
+        top: 0;
+        width: calc(100% - 370px);
+        height: 100%;
+        background: linear-gradient(135deg, #000000, #32174d, #191970);
     }
   </style>
 </head>
@@ -319,12 +301,6 @@
   <!-- Canvas Wrapper -->
   <div id="canvasWrapper"></div>
 
-  <!-- Fallback simple buttons -->
-  <div id="controls">
-    <button id="simpleStart">Start</button>
-    <button id="simpleReset">Reset</button>
-  </div>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
   <script>
@@ -459,13 +435,6 @@
       document.getElementById("pauseButton").addEventListener("click", pauseSimulation);
       document.getElementById("resumeButton").addEventListener("click", resumeSimulation);
       document.getElementById("resetButton").addEventListener("click", resetSimulation);
-      document.getElementById("simpleStart").addEventListener("click", () => {
-        if (isExploded) {
-          resetSimulation();
-        }
-        startSimulation();
-      });
-      document.getElementById("simpleReset").addEventListener("click", resetSimulation);
       window.addEventListener('resize', onWindowResize, false);
     }
 

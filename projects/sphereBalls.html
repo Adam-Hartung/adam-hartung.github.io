@@ -7,7 +7,7 @@
         body { 
             margin: 0; 
             overflow: hidden; 
-            background-color: #000; 
+            background: linear-gradient(135deg, #000000, #32174d, #191970);
             font-family: Arial, sans-serif;
             color: white;
         }
@@ -19,7 +19,8 @@
             position: absolute;
             top: 10px;
             left: 10px;
-            background: rgba(0,0,0,0.7);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             padding: 15px;
             border-radius: 10px;
             z-index: 100;
@@ -33,7 +34,7 @@
             position: absolute;
             top: 10px;
             left: 10px;
-            background: rgba(0,0,0,0.7);
+            background: rgba(255, 255, 255, 0.1);
             color: white;
             border: none;
             padding: 10px;
@@ -48,6 +49,14 @@
         #controls input, #controls select {
             width: 100%;
             margin-top: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #controls select option {
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #ffffff;
         }
     </style>
 </head>
@@ -66,6 +75,7 @@
         </label>
         <label>Ball Color Palette:
             <select id="colorPaletteInput">
+                <option value="theme">Default</option>
                 <option value="neon">Neon</option>
                 <option value="pastel">Pastel</option>
                 <option value="monochrome">Monochrome</option>
@@ -83,6 +93,11 @@
             constructor() {
                 // Color palettes
                 this.colorPalettes = {
+                    theme: [
+                        0x32174d,  // Theme Purple
+                        0x191970,  // Theme Blue
+                        0x000000   // Theme Black
+                    ],
                     neon: [
                         0xff6b6b,  // Neon Red
                         0x4ecdc4,  // Neon Teal
