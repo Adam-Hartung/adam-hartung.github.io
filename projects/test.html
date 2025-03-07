@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive 3D Fractal Visualization</title>
+  <style>
+    /* Base styles */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #eee;
+    }
+    /* Canvas container */
+    #canvas-container {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 1;
+    }
+    /* UI Container */
+    #ui-container {
+      position: absolute;
+      top: 20px; left: 20px;
+      z-index: 10;
+      background: rgba(20,20,20,0.9);
+      padding: 15px;
+      border-radius: 8px;
+      width: 300px;
+    }
+    #ui-container h1 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .control-group {
+      margin-bottom: 15px;
+    }
+    .control-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .control-group select,
+    .control-group input[type="range"],
+    .control-group button {
+      width: 100%;
+      padding: 8px;
+      border-radius: 4px;
+      border: none;
+      font-size: 14px;
+    }
+    /* Custom spinner for Menger recursion level */
+    #menger-spinner {
+      display: flex;
+      align-items: center;
+    }
+    #menger-spinner button {
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+      flex: 0 0 auto;
+      background: #1e88e5;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    #menger-spinner input {
+      flex: 1;
+      height: 40px;
+      text-align: center;
+      font-size: 16px;
+      margin: 0 5px;
+      /* Use number input but remove native arrows */
+      -moz-appearance: textfield;
+    }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    /* Auto rotation button */
+    #toggle-rotation {
+      background: #1e88e5;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    #toggle-rotation:hover {
+      background: #1565c0;
+    }
+    .info-text {
+      font-size: 12px;
+      line-height: 1.4;
+      margin-top: 10px;
+    }
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 20;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.75);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: #222;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      max-width: 400px;
+      width: 80%;
+      position: relative;
+      color: #fff;
+    }
+    .modal-content p {
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+    .modal-content button {
+      padding: 8px;
+      width: 45%;
+      border: none;
+      border-radius: 4px;
+      background: #1e88e5;
+      color: #fff;
+      cursor: pointer;
+      margin: 0 5%;
+    }
+    .modal-content button:hover {
+      background: #1565c0;
+    }
+    .close-modal {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 24px;
+      cursor: pointer;
+      color: #ccc;
+    }
+    @media (max-width: 600px) {
+      #ui-container { width: 90%; left: 5%; top: 10px; }
+      #ui-container h1 { font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- UI Controls -->
+  <div id="ui-container">
+    <h1>Interactive 3D Fractal Visualization</h1>
+    <div class="control-group">
+      <label for="fractal-select" title="Select fractal type">Choose Fractal:</label>
+      <select id="fractal-select">
+        <option value="menger">Menger Sponge</option>
+        <option value="mandelbulb">Mandelbulb</option>
+      </select>
+    </div>
+    <!-- Menger Controls -->
+    <div id="menger-controls" class="control-group">
+      <label title="Recursion level (1-5)">Recursion Level:</label>
+      <div id="menger-spinner">
+        <button id="menger-decrement">-</button>
+        <input type="number" id="menger-level-input" value="3" min="1" max="5" step="1" />
+        <button id="menger-increment">+</button>
+      </div>
+    </div>
+    <!-- Mandelbulb Controls -->
+    <div id="mandelbulb-controls" class="control-group" style="display: none;">
+      <label for="mandelbulb-power" title="Adjust Mandelbulb power">Power Parameter: <span id="mandelbulb-power-display">8</span></label>
+      <input type="range" id="mandelbulb-power" min="2" max="10" step="0.1" value="8" />
+    </div>
+    <!-- Gradient Preset -->
+    <div class="control-group">
+      <label for="gradient-select" title="Select color gradient">Select Color Gradient:</label>
+      <select id="gradient-select">
+        <option value="purple-blue" selected>Purple &amp; Blue</option>
+        <option value="red-yellow">Red &amp; Yellow</option>
+        <option value="green-cyan">Green &amp; Cyan</option>
+        <option value="orange-black">Orange &amp; Black</option>
+      </select>
+    </div>
+    <!-- Auto Rotation Toggle -->
+    <div class="control-group">
+      <button id="toggle-rotation">Auto Rotation: OFF</button>
+    </div>
+    <!-- Info Text -->
+    <div class="info-text">
+      <p><strong>Menger Sponge:</strong> A fractal built by recursively subdividing a cube. Higher recursion gives more detail (but level 5 may be slow).</p>
+      <p><strong>Mandelbulb:</strong> A 3D fractal derived from the Mandelbrot set. Adjust the power parameter to alter its shape.</p>
+    </div>
+  </div>
+  
+  <!-- Modal Warning for Recursion Level 5 -->
+  <div id="modal-warning" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" id="modal-close">&times;</span>
+      <p>Warning: Recursion level 5 may significantly lag your computer. Do you wish to proceed?</p>
+      <button id="modal-proceed">Proceed</button>
+      <button id="modal-cancel">Cancel</button>
+    </div>
+  </div>
+  
+  <!-- Canvas Container -->
+  <div id="canvas-container"></div>
+  
+  <!-- Load Three.js and OrbitControls -->
+  <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
+  <script src="https://unpkg.com/three@0.152.2/examples/js/controls/OrbitControls.js"></script>
+  
+  <!-- Main Script -->
+  <script>
+    // Global variables
+    let scene, camera, renderer, controls;
+    let fractalMesh = null;
+    let autoRotate = false;
+    let currentFractal = "menger"; // default fractal type
+
+    // Preset gradients for colors
+    const gradientPresets = {
+      "purple-blue": { color1: "#800080", color2: "#0000FF" },
+      "red-yellow": { color1: "#FF0000", color2: "#FFFF00" },
+      "green-cyan": { color1: "#008000", color2: "#00FFFF" },
+      "orange-black": { color1: "#FFA500", color2: "#000000" }
+    };
+
+    function init() {
+      // Setup scene
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x222222);
+      
+      // Add an AxesHelper for debugging
+      scene.add(new THREE.AxesHelper(5));
+      
+      // Setup camera: use a default position that is likely to see the fractal.
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 0, 5);
+      
+      // Renderer
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      document.getElementById('canvas-container').appendChild(renderer.domElement);
+      
+      // OrbitControls
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.autoRotate = autoRotate;
+      
+      // Lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+      scene.add(ambientLight);
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+      directionalLight.position.set(5, 5, 5);
+      scene.add(directionalLight);
+      
+      // Event listeners
+      window.addEventListener('resize', onWindowResize, false);
+      document.getElementById('fractal-select').addEventListener('change', onFractalChange);
+      document.getElementById('mandelbulb-power').addEventListener('input', onMandelbulbPowerChange);
+      document.getElementById('gradient-select').addEventListener('change', onGradientChange);
+      document.getElementById('toggle-rotation').addEventListener('click', onToggleRotation);
+      
+      // Menger spinner controls
+      document.getElementById('menger-decrement').addEventListener('click', () => { updateMengerLevel(-1); });
+      document.getElementById('menger-increment').addEventListener('click', () => { updateMengerLevel(1); });
+      document.getElementById('menger-level-input').addEventListener('change', () => {
+        let lvl = parseInt(document.getElementById('menger-level-input').value);
+        if (isNaN(lvl)) lvl = 1;
+        lvl = Math.max(1, Math.min(5, lvl));
+        document.getElementById('menger-level-input').value = lvl;
+        onMengerLevelChangeCustom(lvl);
+      });
+      
+      // Modal event listeners
+      document.getElementById('modal-close').addEventListener('click', closeModal);
+      document.getElementById('modal-cancel').addEventListener('click', () => {
+        closeModal();
+        document.getElementById('menger-level-input').value = 3;
+      });
+      document.getElementById('modal-proceed').addEventListener('click', () => {
+        closeModal();
+        onMengerLevelChangeCustom(5);
+      });
+      
+      // Generate default fractal and start animation
+      generateCurrentFractal();
+      animate();
+    }
+
+    // Handle window resize
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      resetCamera();
+    }
+
+    // Handle fractal type change
+    function onFractalChange(e) {
+      currentFractal = e.target.value;
+      if (currentFractal === "menger") {
+        document.getElementById('menger-controls').style.display = 'block';
+        document.getElementById('mandelbulb-controls').style.display = 'none';
+      } else {
+        document.getElementById('menger-controls').style.display = 'none';
+        document.getElementById('mandelbulb-controls').style.display = 'block';
+      }
+      generateCurrentFractal();
+    }
+
+    // Mandelbulb power change handler
+    function onMandelbulbPowerChange(e) {
+      document.getElementById('mandelbulb-power-display').textContent = e.target.value;
+      generateCurrentFractal();
+    }
+
+    // Gradient change handler
+    function onGradientChange(e) {
+      updateFractalColors();
+    }
+
+    // Toggle auto rotation
+    function onToggleRotation() {
+      autoRotate = !autoRotate;
+      controls.autoRotate = autoRotate;
+      document.getElementById('toggle-rotation').textContent = "Auto Rotation: " + (autoRotate ? "ON" : "OFF");
+    }
+
+    // Update Menger recursion level via spinner buttons
+    function updateMengerLevel(delta) {
+      const input = document.getElementById('menger-level-input');
+      let current = parseInt(input.value);
+      const newVal = Math.max(1, Math.min(5, current + delta));
+      input.value = newVal;
+      onMengerLevelChangeCustom(newVal);
+    }
+
+    // Handle change in Menger recursion level
+    function onMengerLevelChangeCustom(level) {
+      if (level === 5) {
+        showModal();
+      } else {
+        generateCurrentFractal();
+      }
+    }
+
+    // Modal functions
+    function showModal() {
+      document.getElementById('modal-warning').style.display = "flex";
+    }
+    function closeModal() {
+      document.getElementById('modal-warning').style.display = "none";
+    }
+
+    // Generate fractal based on current settings
+    function generateCurrentFractal() {
+      if (currentFractal === "menger") {
+        const level = parseInt(document.getElementById('menger-level-input').value);
+        generateMengerSponge(level);
+      } else {
+        const power = parseFloat(document.getElementById('mandelbulb-power').value);
+        generateMandelbulb(power);
+      }
+    }
+
+    // Remove current fractal mesh
+    function clearFractal() {
+      if (fractalMesh !== null) {
+        scene.remove(fractalMesh);
+        fractalMesh.traverse(child => {
+          if (child.isMesh) {
+            child.geometry.dispose();
+            if (child.material.dispose) child.material.dispose();
+          }
+        });
+        fractalMesh = null;
+      }
+    }
+
+    // Reset camera to frame fractal
+    function resetCamera() {
+      if (!fractalMesh) return;
+      const box = new THREE.Box3().setFromObject(fractalMesh);
+      const size = box.getSize(new THREE.Vector3()).length();
+      const center = box.getCenter(new THREE.Vector3());
+      const newDistance = size * 1.5 || 5;
+      camera.position.set(center.x + newDistance, center.y + newDistance, center.z + newDistance);
+      controls.target.copy(center);
+      camera.near = size / 100 || 0.1;
+      camera.far = size * 100 || 1000;
+      camera.updateProjectionMatrix();
+    }
+
+    // Update fractal colors based on gradient preset
+    function updateFractalColors() {
+      const preset = document.getElementById('gradient-select').value;
+      const colors = gradientPresets[preset];
+      if (currentFractal === "menger" && fractalMesh) {
+        fractalMesh.traverse(child => {
+          if (child.isMesh) {
+            const d = child.position.length();
+            const t = Math.min(d / 3, 1);
+            const col = new THREE.Color(colors.color1).lerp(new THREE.Color(colors.color2), t);
+            child.material.color.copy(col.multiplyScalar(0.8));
+          }
+        });
+      } else if (currentFractal === "mandelbulb" && fractalMesh && fractalMesh.material.uniforms) {
+        fractalMesh.material.uniforms.gradientColor1.value = new THREE.Color(colors.color1);
+        fractalMesh.material.uniforms.gradientColor2.value = new THREE.Color(colors.color2);
+      }
+    }
+
+    // Generate Menger Sponge via recursive grouping of cubes
+    function generateMengerSponge(level) {
+      clearFractal();
+      const group = new THREE.Group();
+      const baseSize = 1;
+      const cubeGeometry = new THREE.BoxGeometry(baseSize, baseSize, baseSize);
+      
+      function addCubes(parentGroup, x, y, z, size, currentLevel) {
+        if (currentLevel === 1) {
+          const cubeMaterial = new THREE.MeshPhongMaterial({ color: new THREE.Color(gradientPresets[document.getElementById('gradient-select').value].color1) });
+          const cube = new THREE.Mesh(cubeGeometry.clone(), cubeMaterial);
+          cube.scale.setScalar(size / baseSize);
+          cube.position.set(x, y, z);
+          const d = new THREE.Vector3(x, y, z).length();
+          const t = Math.min(d / 3, 1);
+          const col = new THREE.Color(gradientPresets[document.getElementById('gradient-select').value].color1)
+                      .lerp(new THREE.Color(gradientPresets[document.getElementById('gradient-select').value].color2), t);
+          cube.material.color.copy(col.multiplyScalar(0.8));
+          parentGroup.add(cube);
+        } else {
+          const newSize = size / 3;
+          for (let i = -1; i <= 1; i++){
+            for (let j = -1; j <= 1; j++){
+              for (let k = -1; k <= 1; k++){
+                if (Math.abs(i) + Math.abs(j) + Math.abs(k) > 1){
+                  addCubes(parentGroup, x + i * newSize, y + j * newSize, z + k * newSize, newSize, currentLevel - 1);
+                }
+              }
+            }
+          }
+        }
+      }
+      addCubes(group, 0, 0, 0, baseSize, level);
+      fractalMesh = group;
+      scene.add(fractalMesh);
+      updateFractalColors();
+      resetCamera();
+    }
+
+    // Generate Mandelbulb using a basic ray marching shader
+    function generateMandelbulb(power) {
+      clearFractal();
+      const geometry = new THREE.BoxBufferGeometry(2, 2, 2);
+      const preset = document.getElementById('gradient-select').value;
+      const colors = gradientPresets[preset];
+      const material = new THREE.ShaderMaterial({
+        uniforms: {
+          iTime: { value: 0 },
+          iResolution: { value: new THREE.Vector3(window.innerWidth, window.innerHeight, 1) },
+          power: { value: power },
+          gradientColor1: { value: new THREE.Color(colors.color1) },
+          gradientColor2: { value: new THREE.Color(colors.color2) }
+        },
+        vertexShader: `
+          varying vec3 vPos;
+          void main() {
+            vPos = position;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          precision highp float;
+          uniform float iTime;
+          uniform vec3 iResolution;
+          uniform float power;
+          uniform vec3 gradientColor1;
+          uniform vec3 gradientColor2;
+          varying vec3 vPos;
+          const int MAX_STEPS = 100;
+          const float MIN_DIST = 0.001;
+          const float MAX_DIST = 100.0;
+          float mandelbulbDE(vec3 pos) {
+            vec3 z = pos;
+            float dr = 1.0;
+            float r = length(z);
+            for (int i = 0; i < 8; i++) {
+              if (r > 2.0) break;
+              float theta = acos(z.z / r);
+              float phi = atan(z.y, z.x);
+              float zr = pow(r, power);
+              theta *= power;
+              phi *= power;
+              z = zr * vec3(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta)) + pos;
+              dr = pow(r, power - 1.0) * power * dr + 1.0;
+              r = length(z);
+            }
+            return 0.5 * log(r) * r / dr;
+          }
+          float rayMarch(vec3 ro, vec3 rd) {
+            float dist = 0.0;
+            for (int i = 0; i < MAX_STEPS; i++) {
+              vec3 pos = ro + rd * dist;
+              float d = mandelbulbDE(pos);
+              if (d < MIN_DIST) return dist;
+              dist += d;
+              if (dist > MAX_DIST) break;
+            }
+            return dist;
+          }
+          vec3 calcNormal(vec3 pos) {
+            float eps = 0.001;
+            float d = mandelbulbDE(pos);
+            return normalize(vec3(
+              mandelbulbDE(pos + vec3(eps, 0, 0)) - d,
+              mandelbulbDE(pos + vec3(0, eps, 0)) - d,
+              mandelbulbDE(pos + vec3(0, 0, eps)) - d
+            ));
+          }
+          void main() {
+            vec2 uv = (gl_FragCoord.xy - 0.5 * iResolution.xy) / iResolution.y;
+            vec3 ro = vec3(4.0, 4.0, 4.0);
+            vec3 target = vec3(0.0);
+            vec3 forward = normalize(target - ro);
+            vec3 right = normalize(cross(vec3(0.0,1.0,0.0), forward));
+            vec3 up = cross(forward, right);
+            vec3 rd = normalize(uv.x * right + uv.y * up + 1.5 * forward);
+            float dist = rayMarch(ro, rd);
+            vec3 pos = ro + rd * dist;
+            vec3 color = vec3(0.0);
+            if (dist < MAX_DIST) {
+              vec3 normal = calcNormal(pos);
+              float diffuse = max(dot(normal, vec3(0.0,0.0,1.0)), 0.0);
+              float t = clamp(dist / MAX_DIST, 0.0, 1.0);
+              color = mix(gradientColor1, gradientColor2, t) * diffuse;
+              color = mix(color, vec3(0.0), t * 0.5);
+            }
+            gl_FragColor = vec4(color, 1.0);
+          }
+        `
+      });
+      fractalMesh = new THREE.Mesh(geometry, material);
+      scene.add(fractalMesh);
+      resetCamera();
+    }
+
+    // Animation loop
+    function animate() {
+      requestAnimationFrame(animate);
+      // For Menger fractal, apply auto rotation if enabled
+      if (fractalMesh && autoRotate && currentFractal === "menger") {
+        fractalMesh.rotation.y += 0.005;
+      }
+      // For Mandelbulb, update time uniform if present
+      if (currentFractal === "mandelbulb" && fractalMesh && fractalMesh.material.uniforms) {
+        fractalMesh.material.uniforms.iTime.value += 0.05;
+      }
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    init();
+  </script>
+</body>
+</html>
